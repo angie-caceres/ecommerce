@@ -1,11 +1,13 @@
 package com.uade.tpo.demo.entity;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-//import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 @Data
@@ -29,6 +31,6 @@ public class Descuento {
     @Column
     private boolean activo;
 
-    /*@OneToMany(mappedBy = "descuento")
-    private List<Libro> libros;*/
+    @OneToMany(mappedBy = "descuento")
+    private List<Libro> libros;
 }

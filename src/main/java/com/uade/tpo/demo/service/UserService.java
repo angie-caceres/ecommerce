@@ -12,7 +12,7 @@ public interface UserService {
 
     public Optional<User> getUserById(Long userId);
 
-    public User createUser(String username, String email, String password, String role)
+    public User createUser(String username, String email, String password)
             throws UserDuplicateException;
     
     public Optional<User> updateUserEmail(Long userId, String newEmail);

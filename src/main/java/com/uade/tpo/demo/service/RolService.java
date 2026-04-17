@@ -3,16 +3,16 @@ package com.uade.tpo.demo.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.uade.tpo.demo.entity.User;
-import com.uade.tpo.demo.exceptions.UserDuplicateException;
+import com.uade.tpo.demo.entity.Rol;
+import com.uade.tpo.demo.exceptions.*;
 
 public interface RolService {
 
-    public List<User> getRoles();
+    public List<Rol> getRoles();
 
-    public Optional<User> getRolById(Long rolId);
+    public Optional<Rol> getRolById(Long rolId);
 
-    public User createRol(String nombre) throws UserDuplicateException;
+    public Rol createRol(String nombre) throws RecursoDuplicateException;//seria ROl
     
     
 }

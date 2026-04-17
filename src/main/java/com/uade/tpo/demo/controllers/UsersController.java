@@ -34,15 +34,15 @@ public class UsersController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createUser(@RequestBody UserRequest userRequest)
+  public ResponseEntity<Object> createUser(@RequestBody UserRequest userRequest)
             throws UserDuplicateException {
-        User result = userService.createUser(
+            User result = userService.createUser(
             userRequest.getUsername(),
             userRequest.getEmail(),
-            userRequest.getPassword(),
-            userRequest.getRole()
+            userRequest.getPassword()
+            //userRequest.getRole()
         );
-        return ResponseEntity.created(URI.create("/users/" + result.getId())).body(result);
+        return ResponseEntity.created(URI.create("/users/" + result.getIdUsuario())).body(result);
     }
 
     @PutMapping("/{userId}/email")

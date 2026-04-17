@@ -25,25 +25,25 @@ import org.springframework.data.domain.Page;
 @RequestMapping("descuentos")
 public class DescuentoController {
     @Autowired
-    private DescuentoService DescuentoService;
+    private DescuentoService descuentoService;
 
     @GetMapping
     public ResponseEntity<Page<Descuento>> getDescuentos(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(DescuentoService.getDescuentos(PageRequest.of(page, size)));
+        return ResponseEntity.ok(descuentoService.getDescuentos(PageRequest.of(page, size)));
     }
 
     @PatchMapping("/{id}/toggle")  // PATCH porque es una modificación parcial
     public ResponseEntity<Descuento> toggleActivo(@PathVariable Long id)
             throws RecursoNotFoundException {
-        return ResponseEntity.ok(DescuentoService.toggleActivo(id));
+        return ResponseEntity.ok(descuentoService.toggleActivo(id));
     }
 
     @PostMapping
     public ResponseEntity<Object> createDescuento(@RequestBody DescuentoRequest request)
             throws RecursoDuplicateException {
-        Descuento result = DescuentoService.createDescuento(request.getPorcentaje());
+        Descuento result = descuentoService.createDescuento(request.getPorcentaje());
         return ResponseEntity.created(URI.create("/descuentos/" + result.getId())).body(result);
     }
 
