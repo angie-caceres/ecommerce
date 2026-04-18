@@ -88,7 +88,7 @@ public class OrdenServiceImpl implements OrdenService {
 
     
 
-    // Crear orden desde el checkout — solo llamado por CarritoService
+    // Crear orden desde el checkout. Llamado por CarritoService
     @Override
     @Transactional
     public Orden crearDesdeCarrito(Carrito carrito, List<ItemCarrito> items) {
