@@ -1,5 +1,6 @@
 package com.uade.tpo.demo.service;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,4 +44,15 @@ public class GeneroServiceImpl implements GeneroService {
                 .orElseThrow(() -> new RecursoNotFoundException());
         generoRepository.delete(genero);
     }
+    //Actualizar género
+    @Override
+public Genero updateGenero(Long id, String nombre) throws RecursoNotFoundException {
+
+    Genero genero = generoRepository.findById(id)
+        .orElseThrow(() -> new RecursoNotFoundException());
+
+    genero.setNombre(nombre);
+
+    return generoRepository.save(genero);
+}
 }

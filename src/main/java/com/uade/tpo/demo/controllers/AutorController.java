@@ -3,9 +3,11 @@ package com.uade.tpo.demo.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +18,7 @@ import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 import com.uade.tpo.demo.service.AutorService;
 
 import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequestMapping("/autores")
@@ -45,5 +48,20 @@ public class AutorController {
                 request.getApellido(),
                 request.getNacionalidad()
         );
+    }
+    //PUT /autores
+    @PutMapping("/{id}")
+    public Autor updateAutor(@PathVariable Long id, @RequestBody AutorRequest request) throws RecursoNotFoundException {
+        return autorService.updateAutor(
+            id,
+            request.getNombre(),
+            request.getApellido(),
+            request.getNacionalidad()
+        );
+    }
+    //DELETE /autores
+    @DeleteMapping("/{id}")
+    public void deleteAutor(@PathVariable Long id) throws RecursoNotFoundException {
+        autorService.deleteAutor(id);
     }
 }

@@ -44,4 +44,21 @@ public class AutorServiceImpl implements AutorService {
 
         return autorRepository.save(autor);
     }
+    @Override
+    public Autor updateAutor(Long id, String nombre, String apellido, String nacionalidad) throws RecursoNotFoundException {
+        Autor autor = autorRepository.findById(id)
+            .orElseThrow(() -> new RecursoNotFoundException());
+        autor.setNombre(nombre);
+        autor.setApellido(apellido);
+        autor.setNacionalidad(nacionalidad);
+
+    return autorRepository.save(autor);
+    }
+    @Override
+    public void deleteAutor(Long id) throws RecursoNotFoundException {
+        Autor autor = autorRepository.findById(id)
+            .orElseThrow(() -> new RecursoNotFoundException());
+
+        autorRepository.delete(autor);
+    }
 }

@@ -12,4 +12,7 @@ public interface AutorService {
     Autor getAutorById(Long id) throws RecursoNotFoundException;
 
     Autor createAutor(String nombre, String apellido, String nacionalidad);
+
+    Autor updateAutor(Long id, String nombre, String apellido, String nacionalidad) throws RecursoNotFoundException;
+    void deleteAutor(Long id) throws RecursoNotFoundException;
 }
