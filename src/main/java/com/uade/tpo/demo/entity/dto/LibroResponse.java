@@ -1,17 +1,24 @@
 package com.uade.tpo.demo.entity.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
 public class LibroResponse {
     private Long idLibro;
     private String titulo;
-    //private String descripcion;
+    private String descripcion;
     private float precio;
     private int stock;
-    //private String nombreGenero;
-    //private String nombreEditorial;
-    //private String nombreAutor;
+    private String genero;
+    private String editorial;
+    private List<String> autores;
+    private String imagen; // base64
    // private Long idVendedor;
     private Double porcentajeDescuento;
+
+    
+    
+
 }

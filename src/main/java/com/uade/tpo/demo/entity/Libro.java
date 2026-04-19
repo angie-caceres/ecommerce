@@ -3,30 +3,43 @@ package com.uade.tpo.demo.entity;
 
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
+@EqualsAndHashCode(exclude = {"imagen"})
 public class Libro {
 
     public Libro() {}
+
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idLibro;
 
+    @Column(nullable = false)
     private String titulo;
 
+    @Column(nullable = false)
     private float precio;
 
+    @Column(nullable = false)
     private int stock;
+
+    private String descripcion;
 
     @OneToMany(mappedBy = "libro")
     private List<ItemOrden> itemsOrden;
@@ -35,27 +48,34 @@ public class Libro {
     private List<ItemCarrito> itemsCarrito;
 
     @ManyToOne
-    @JoinColumn(name = "idDescuento")
+    @JoinColumn(name = "idDescuento", nullable = false)
     private Descuento descuento;
 
-
-
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "idGenero", nullable = false)
-    private Genero genero;*/
-/*
+    private Genero genero;
+
     @ManyToOne
     @JoinColumn(name = "idEditorial", nullable = false)
     private Editorial editorial;
 
+    @OneToOne
+    @JoinColumn(name = "idImagen")
+    private Imagen imagen;
+
+    @ManyToMany
+    @JoinTable(
+        name = "libro_autor",
+        joinColumns = @JoinColumn(name = "idLibro"),
+        inverseJoinColumns = @JoinColumn(name = "idAutor")
+    )
+    private List<Autor> autores;
+
+/*
+    @ManyToOne
+    @JoinColumn(name = "id")
+    private User administrador;
+
     
-
-    @ManyToOne
-    @JoinColumn(name = "idVendedor", nullable = false)
-    private User vendedor;
-
-    @ManyToOne
-    @JoinColumn(name = "idAutor", nullable = false)
-    private Autor autor;
 */
 }

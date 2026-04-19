@@ -31,6 +31,6 @@ public class Descuento {
     @Column
     private boolean activo;
 
-    @OneToMany(mappedBy = "descuento")
-    private List<Libro> libros;
+    /*@OneToMany(mappedBy = "descuento")
+    private List<Libro> libros;*/
 }

@@ -10,8 +10,8 @@ import com.uade.tpo.demo.exceptions.*;
 
 
 public interface EditorialService {
-    Page<Editorial> getEditoriales(PageRequest pageRequest);
+    List<Editorial> getEditoriales();
     //Optional<Editorial> getEditorialById(Long id);
-    List<Editorial> getEditorialByNombre(String nombre)throws RecursoNotFoundException;
+    Editorial getEditorialByNombre(String nombre);
     Editorial createEditorial(String nombre) throws RecursoDuplicateException;
 }

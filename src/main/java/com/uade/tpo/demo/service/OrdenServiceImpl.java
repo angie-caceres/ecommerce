@@ -99,6 +99,7 @@ public class OrdenServiceImpl implements OrdenService {
         nuevaOrden.setCarrito(carrito);
         nuevaOrden.setFechaVenta(new Date());
         nuevaOrden.setEstado("CONFIRMADA");
+        nuevaOrden.setMetodoPago("TRANSFERENCIA");
 
         // 2. transformar items del carrito a items de la orden
         List<ItemOrden> itemsOrden = items.stream().map(itemCarrito -> {

@@ -1,7 +1,10 @@
 package com.uade.tpo.demo.service;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.uade.tpo.demo.entity.Genero;
 import com.uade.tpo.demo.exceptions.RecursoDuplicateException;
 import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
@@ -19,14 +22,14 @@ public class GeneroServiceImpl implements GeneroService {
     //Crear género
     @Override
     public Genero createGenero(String nombre) throws RecursoDuplicateException {
-        //Validar duplicado
-        if (!generoRepository.findByNombre(nombre).isEmpty()) {
-            throw new RecursoDuplicateException();
+        if (generoRepository.findByNombre(nombre).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El género ya existe: " + nombre);
         }
         Genero genero = new Genero();
         genero.setNombre(nombre);
         return generoRepository.save(genero);
     }
+    
     //Obtener género por ID
     @Override
     public Genero getGeneroById(Long id) throws RecursoNotFoundException {

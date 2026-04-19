@@ -5,15 +5,18 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
+//@EqualsAndHashCode(exclude = "carrito")
 public class User {
 
     public User() {}
@@ -39,8 +42,8 @@ public class User {
     @Column
     private String password;
 
-    /*@Column
-    private String role;*/
+    /*@Enumerated(EnumType.STRING)
+    private Role role;*/
 
     @OneToOne(mappedBy = "usuario")
     private Carrito carrito;

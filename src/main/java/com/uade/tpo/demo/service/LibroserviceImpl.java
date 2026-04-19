@@ -1,155 +1,196 @@
 package com.uade.tpo.demo.service;
 
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.uade.tpo.demo.entity.Autor;
 import com.uade.tpo.demo.entity.Descuento;
 import com.uade.tpo.demo.entity.Genero;
+import com.uade.tpo.demo.entity.Imagen;
 import com.uade.tpo.demo.entity.Descuento;
 import com.uade.tpo.demo.entity.Editorial;
 import com.uade.tpo.demo.entity.Genero;
-//import com.uade.tpo.demo.entity.Autor;
-//import com.uade.tpo.demo.entity.Descuento;
-//import com.uade.tpo.demo.entity.Editorial;
-//import com.uade.tpo.demo.entity.Genero;
 import com.uade.tpo.demo.entity.Libro;
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.LibroRequest;
 import com.uade.tpo.demo.entity.dto.LibroResponse;
 import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
-//import com.uade.tpo.demo.repository.AutorRepository;
+import com.uade.tpo.demo.repository.AutorRepository;
 import com.uade.tpo.demo.repository.DescuentoRepository;
-//import com.uade.tpo.demo.repository.EditorialRepository;
-//import com.uade.tpo.demo.repository.GeneroRepository;
+import com.uade.tpo.demo.repository.EditorialRepository;
+import com.uade.tpo.demo.repository.GeneroRepository;
+import com.uade.tpo.demo.repository.ImagenRepository;
 import com.uade.tpo.demo.repository.LibroRepository;
 //import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.*;
+import java.util.Base64;
+import java.sql.Blob;
+import java.sql.SQLException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class LibroServiceImpl implements LibroService {
 
-
     private final LibroRepository libroRepository;
-    //private final GeneroRepository generoRepository;
-    //private final EditorialRepository editorialRepository;
+    private final GeneroRepository generoRepository;
+    private final EditorialRepository editorialRepository;
     private final DescuentoRepository descuentoRepository;
+    private final ImagenRepository imagenRepository; 
     //private final UserRepository userRepository;
-    //private final AutorRepository autorRepository;
+    private final AutorRepository autorRepository;
 
     @Override
-    public List<Libro> getLibros() {
+    public List<Libro> getLibros(String genero, String autor, String editorial, Float precioMin, Float precioMax) {
+
+        if (genero != null) {
+        Genero generoEntity = generoRepository.findByNombre(genero)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el género: " + genero));
+        return libroRepository.findByGenero(generoEntity);
+    }
+
+        if (autor != null) {
+        Autor autorEntity = autorRepository.findByNombreOrApellido(autor)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el autor: " + autor));
+        return libroRepository.findByAutor(autorEntity);
+        }
+
+        if (editorial != null) {
+            Editorial editorialEntity = editorialRepository.findByNombre(editorial)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la editorial: " + editorial));
+            return libroRepository.findByEditorial(editorialEntity);
+        }
+        if (precioMin != null && precioMax != null) {
+            if (precioMin > precioMax) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El precio mínimo no puede ser mayor al máximo");
+            }
+            List<Libro> libros = libroRepository.findByPrecioBetween(precioMin, precioMax);
+            if (libros.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encontraron libros en el rango de precio " + precioMin + " - " + precioMax);
+            }
+            return libros;
+        }
+
+    
         return libroRepository.findAll();
     }
 
     @Override
-    public Libro getLibroById(Long id){
+    public Libro getLibroById(Long id) {
         Optional<Libro> libroOpt = libroRepository.findById(id);
-
         if (libroOpt.isEmpty()) {
-            throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "El libro seleccionado no existe");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El libro con id " + id + " no existe");
         }
-
         return libroOpt.get();
     }
-     
 
+    @Override
+    public Libro getLibroByTitulo(String titulo) {
+        return libroRepository.findByTitulo(titulo)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el libro: " + titulo));
+    }
+     
     @Override
     public Libro createLibro(LibroRequest request) throws RecursoNotFoundException {
 
         if (libroRepository.existsByTitulo(request.getTitulo())) {
-            throw new RuntimeException("El libro ya existe");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El libro ya existe: " + request.getTitulo());
+        }
+
+        if (request.getTitulo() == null || request.getTitulo().isBlank()) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El título no puede estar vacío");
+        }
+        if (request.getPrecio() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El precio debe ser mayor a 0");
+        }
+        if (request.getStock() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El stock no puede ser negativo");
         }
 
         Libro libro = new Libro();
-
-        libro.setTitulo(request.getTitulo());
-        libro.setPrecio(request.getPrecio());
-        libro.setStock(request.getStock());
-        // descuento opcional
+        // descuento 
         if (request.getIdDescuento() != null) {
             Descuento descuento = descuentoRepository.findById(request.getIdDescuento())
                 .orElseThrow(() -> new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Descuento no encontrado"));
         libro.setDescuento(descuento);
         }
- 
+
+        Genero genero = generoRepository.findById(request.getIdGenero())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el género: " + request.getIdGenero()));
+
+        Editorial editorial = editorialRepository.findById(request.getIdEditorial())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la editorial: " + request.getIdEditorial()));
+
+        List<Autor> autores = request.getIdAutores().stream()
+            .map(id -> autorRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el autor con ese id " )))
+            .collect(Collectors.toList());
+
+        
+        libro.setTitulo(request.getTitulo());
+        libro.setDescripcion(request.getDescripcion());
+        libro.setPrecio(request.getPrecio());
+        libro.setStock(request.getStock());
+        libro.setGenero(genero);
+        libro.setEditorial(editorial);
+        libro.setAutores(autores);
 
         return libroRepository.save(libro);
     }
 
-        // Genero
-       /*  Optional<Genero> generoOpt = generoRepository.findById(request.getIdGenero());
-        if (generoOpt.isEmpty()) {
-            throw new RecursoNotFoundException();
-        }*/
-
-        // Editorial
-       /* Optional<Editorial> editorialOpt = editorialRepository.findById(request.getIdEditorial());
-        if (editorialOpt.isEmpty()) {
-            throw new RecursoNotFoundException();
-        }*/ 
-
-        // Vendedor
-        /*Optional<User> userOpt = userRepository.findById(request.getIdVendedor());
-        if (userOpt.isEmpty()) {
-            throw new RecursoNotFoundException();
-        }*/
-
-        //libro.setGenero(generoOpt.get());
-        //libro.setEditorial(editorialOpt.get());
-        //libro.setVendedor(userOpt.get());
-
-        // Descuento
-        /*if (request.getIdDescuento() != null) {
-            Optional<Descuento> descuentoOpt = descuentoRepository.findById(request.getIdDescuento());
-
-            if (descuentoOpt.isEmpty()) {
-                throw new RecursoNotFoundException();
-            }
-
-            libro.setDescuento(descuentoOpt.get());
-        }
-
+    @Override
+    public Libro asignarImagen(Long libroId, Long imagenId) {
+        Libro libro = getLibroById(libroId);
+        Imagen imagen = imagenRepository.findById(imagenId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la imagen con id: " + imagenId));
+        libro.setImagen(imagen);
         return libroRepository.save(libro);
-    }*/
+    }
+
+    @Override
+    public void deleteLibro(Long id) {
+        Libro libro = getLibroById(id);
+        libroRepository.delete(libro);
+    }
     
-    /* 
+
     @Override
-    public List<Libro> getLibrosByGenero(Long idGenero) throws RecursoNotFoundException {
-
-        Optional<Genero> generoOpt = generoRepository.findById(idGenero);
-
-        if (generoOpt.isEmpty()) {
-            throw new RecursoNotFoundException();
-        }
-
-        return libroRepository.findByGenero(generoOpt.get());
+    public Libro actualizarGenero(Long id, Long idGenero) {
+        Libro libro = getLibroById(id);
+        Genero genero = generoRepository.findById(idGenero)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el género con id: " + idGenero));
+        libro.setGenero(genero);
+        return libroRepository.save(libro);
     }
 
     @Override
-    public List<Libro> getLibrosByPrecio(float precioMin, float precioMax) {
-        return libroRepository.findByPrecioBetween(precioMin, precioMax);
-    }*/
+    public Libro actualizarEditorial(Long id, Long idEditorial) {
+        Libro libro = getLibroById(id);
+        Editorial editorial = editorialRepository.findById(idEditorial)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la editorial con id: " + idEditorial));
+        libro.setEditorial(editorial);
+        return libroRepository.save(libro);
+    }
 
-    /* 
     @Override
-    public List<Libro> getLibrosByAutor(Long idAutor) throws RecursoNotFoundException {
+    public Libro actualizarAutores(Long id, List<Long> idAutores) {
+        Libro libro = getLibroById(id);
+        List<Autor> autores = idAutores.stream()
+            .map(idAutor -> autorRepository.findById(idAutor)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el autor con id: " + idAutor)))
+            .collect(Collectors.toList());
+        libro.setAutores(autores);
+        return libroRepository.save(libro);
+    }
 
-        Optional<Autor> autorOpt = autorRepository.findById(idAutor);
-
-        if (autorOpt.isEmpty()) {
-            throw new RecursoNotFoundException();
-        }
-
-        return libroRepository.findByAutor(autorOpt.get());
-    }*/
 
     public boolean tieneStock(Long id, int cantidadSolicitada) {
         return libroRepository.findById(id)
@@ -174,7 +215,6 @@ public class LibroServiceImpl implements LibroService {
 
         libroRepository.save(libro);
     }
-
 
     /*actualizacion manual de stock para el vendedor*/
     public Libro actualizarStock(Long id, int cantidad) {
@@ -213,18 +253,35 @@ public class LibroServiceImpl implements LibroService {
         LibroResponse response = new LibroResponse();
         response.setIdLibro(libro.getIdLibro());
         response.setTitulo(libro.getTitulo());
-       // response.setDescripcion(libro.getDescripcion());
+        response.setDescripcion(libro.getDescripcion());
         response.setPrecio(libro.getPrecio());
         response.setStock(libro.getStock());
-    /*if (libro.getGenero() != null)
-        response.setNombreGenero(libro.getGenero().getNombre());
+
+    if (libro.getGenero() != null)
+        response.setGenero(libro.getGenero().getNombre());
+
     if (libro.getEditorial() != null)
-        response.setNombreEditorial(libro.getEditorial().getNombre());
-    if (libro.getAutor() != null)
-        response.setNombreAutor(libro.getAutor().getNombre());
-    if (libro.getVendedor() != null)
+        response.setEditorial(libro.getEditorial().getNombre());
+
+    if (libro.getAutores() != null)
+    response.setAutores(libro.getAutores().stream()
+        .map(a -> a.getNombre() + " " + a.getApellido())
+        .collect(Collectors.toList()));
+
+    /*if (libro.getVendedor() != null)
         response.setIdVendedor(libro.getVendedor().getIdUsuario());*/
-        if (libro.getDescuento() != null) {
+    if (libro.getImagen() != null) {
+    try {
+        Blob blob = libro.getImagen().getImage();
+        String base64 = Base64.getEncoder()
+            .encodeToString(blob.getBytes(1, (int) blob.length()));
+        response.setImagen(base64);
+    } catch (SQLException e) {
+        response.setImagen(null);
+    }
+    }
+    
+    if (libro.getDescuento() != null) {
             response.setPorcentajeDescuento(libro.getDescuento().getPorcentaje());
         }
         return response;

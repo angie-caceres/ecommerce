@@ -9,13 +9,20 @@ import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 
 public interface LibroService {
 
-    List<Libro> getLibros();
+    List<Libro> getLibros(String genero, String autor, String editorial, Float precioMin, Float precioMax);
 
     Libro getLibroById(Long id);
 
     Libro createLibro(LibroRequest request) throws RecursoNotFoundException;
     Libro actualizarStock(Long id, int cantidad);
     Libro asignarDescuento(Long libroId, Long descuentoId);
+    Libro getLibroByTitulo(String titulo);
+    void deleteLibro(Long id);
+    Libro actualizarGenero(Long id, Long idGenero);
+    Libro actualizarEditorial(Long id, Long idEditorial);
+    Libro actualizarAutores(Long id, List<Long> idAutores);
+    Libro asignarImagen(Long libroId, Long imagenId);
+
 
    // List<Libro> getLibrosByGenero(Long idGenero) throws RecursoNotFoundException;
 

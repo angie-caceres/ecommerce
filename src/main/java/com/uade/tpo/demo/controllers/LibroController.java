@@ -3,7 +3,10 @@ package com.uade.tpo.demo.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,50 +29,46 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LibroController {
 
+    @Autowired
     private final LibroService libroService;
 
     // GET /libros
     @GetMapping
-    public List<LibroResponse> getLibros(
-            @RequestParam(required = false) Long genero,
-            @RequestParam(required = false) Float precioMin,
-            @RequestParam(required = false) Float precioMax,
-            @RequestParam(required = false) Long autor
-    ) throws RecursoNotFoundException {
-
-       /*  // Filtro
-        /if (genero != null) {
-            return libroService.getLibrosByGenero(genero);
-        }
-
-        if (precioMin != null && precioMax != null) {
-            return libroService.getLibrosByPrecio(precioMin, precioMax);
-        }
-
-        if (autor != null) {
-            return libroService.getLibrosByAutor(autor);
-        }*/
-
-        // Sin filtros
-        
-        return libroService.getLibros().stream()
-            .map(libro -> libroService.convertirAResponse(libro))
-            .collect(Collectors.toList());
+    public ResponseEntity<List<LibroResponse>> getLibros(
+        @RequestParam(required = false) String genero,
+        @RequestParam(required = false) String autor,
+        @RequestParam(required = false) String editorial,
+        @RequestParam(required = false) Float precioMin,
+        @RequestParam(required = false) Float precioMax
+) {
+    List<LibroResponse> libros = libroService.getLibros(genero, autor, editorial, precioMin, precioMax)
+        .stream()
+        .map(libroService::convertirAResponse)
+        .collect(Collectors.toList());
+    return ResponseEntity.ok(libros);
 }
 
 
     // POST /libros
     @PostMapping
-    public LibroResponse createLibro(@RequestBody LibroRequest request) throws RecursoNotFoundException {
-        return libroService.convertirAResponse(libroService.createLibro(request));
+    public ResponseEntity<LibroResponse> createLibro(@RequestBody LibroRequest request) throws RecursoNotFoundException {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(libroService.convertirAResponse(libroService.createLibro(request)));
     }
 
     // GET /libros/{id}
     @GetMapping("/{id}")
-    public LibroResponse getLibroById(@PathVariable Long id) {
-        return libroService.convertirAResponse(libroService.getLibroById(id));
+    public ResponseEntity<LibroResponse> getLibroById(@PathVariable Long id) {
+        return ResponseEntity.ok(libroService.convertirAResponse(libroService.getLibroById(id)));
     }
 
+    //GET localhost:4002/libros/buscar?titulo=Cien años de soledad
+    @GetMapping("/buscar")
+    public ResponseEntity<LibroResponse> getLibroByTitulo(@RequestParam String titulo) {
+        return ResponseEntity.ok(libroService.convertirAResponse(libroService.getLibroByTitulo(titulo)));
+    }
+    
+    //asignardescuento
     @PatchMapping("/{libroId}/descuento/{descuentoId}")
     public ResponseEntity<LibroResponse> asignarDescuento(
             @PathVariable Long libroId,
@@ -79,14 +78,48 @@ public class LibroController {
                 libroService.asignarDescuento(libroId, descuentoId)));
     }
 
-
     //actualizar stock manual
-
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<Libro> actualizarStock(
+    public ResponseEntity<LibroResponse> actualizarStock(
         @PathVariable Long id,
         @RequestParam int cantidad) {
-    return ResponseEntity.ok(libroService.actualizarStock(id, cantidad));
+    return ResponseEntity.ok(libroService.convertirAResponse(libroService.actualizarStock(id, cantidad)));
+    }
+
+    @PatchMapping("/{id}/genero/{idGenero}")
+    public ResponseEntity<LibroResponse> actualizarGenero(
+            @PathVariable Long id,
+            @PathVariable Long idGenero) {
+        return ResponseEntity.ok(libroService.convertirAResponse(libroService.actualizarGenero(id, idGenero)));
+    }
+
+    @PatchMapping("/{id}/editorial/{idEditorial}")
+    public ResponseEntity<LibroResponse> actualizarEditorial(
+            @PathVariable Long id,
+            @PathVariable Long idEditorial) {
+        return ResponseEntity.ok(libroService.convertirAResponse(libroService.actualizarEditorial(id, idEditorial)));
+    }
+
+    @PatchMapping("/{id}/autores")
+    public ResponseEntity<LibroResponse> actualizarAutores(
+            @PathVariable Long id,
+            @RequestBody List<Long> idAutores) {
+        return ResponseEntity.ok(libroService.convertirAResponse(libroService.actualizarAutores(id, idAutores)));
+    }
+
+    @PatchMapping("/{libroId}/imagen/{imagenId}")
+    public ResponseEntity<LibroResponse> asignarImagen(
+            @PathVariable Long libroId,
+            @PathVariable Long imagenId) {
+        return ResponseEntity.ok(libroService.convertirAResponse(libroService.asignarImagen(libroId, imagenId)));
+    }
+    
+
+    //eliminar libro  por id
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteLibro(@PathVariable Long id) {
+        libroService.deleteLibro(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

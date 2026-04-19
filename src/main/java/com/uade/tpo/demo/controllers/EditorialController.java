@@ -22,13 +22,10 @@ public class EditorialController {
     private EditorialService editorialService;
 
     @GetMapping
-    public ResponseEntity<Page<Editorial>> getEditoriales(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(editorialService.getEditoriales(PageRequest.of(page, size)));
+    public ResponseEntity<List<Editorial>> getEditoriales() {
+        return ResponseEntity.ok(editorialService.getEditoriales());
     }
-
-   /* @GetMapping("/{id}")
+   /*@GetMapping("/{id}")
     public ResponseEntity<Editorial> getEditorialById(@PathVariable Long id) {
         Optional<Editorial> result = editorialService.getEditorialById(id);
         if (result.isPresent())
@@ -37,7 +34,7 @@ public class EditorialController {
     }*/
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<Editorial>> getEditorialByNombre(@RequestParam String nombre) 
+    public ResponseEntity<Editorial> getEditorialByNombre(@RequestParam String nombre) 
             throws RecursoNotFoundException {
         return ResponseEntity.ok(editorialService.getEditorialByNombre(nombre));
     }
