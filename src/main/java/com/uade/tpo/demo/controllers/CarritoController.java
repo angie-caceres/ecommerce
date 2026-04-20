@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.security.core.Authentication;
+
 import com.uade.tpo.demo.entity.Carrito;
 import com.uade.tpo.demo.entity.ItemCarrito;
 import com.uade.tpo.demo.entity.Libro;
@@ -26,8 +28,11 @@ import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 import com.uade.tpo.demo.service.CarritoService;
 import com.uade.tpo.demo.service.OrdenService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/carrito")
+@RequiredArgsConstructor
 public class CarritoController {
 
     @Autowired
@@ -36,56 +41,59 @@ public class CarritoController {
     @Autowired 
     private OrdenService ordenService;
 
-    // GET /carrito/{usuarioId}
-    @GetMapping("/{usuarioId}")
-    public ResponseEntity<CarritoResponse> getCarrito(@PathVariable Long usuarioId) {
+    // GET /carrito
+    @GetMapping
+    public ResponseEntity<CarritoResponse> getCarrito(Authentication auth) {
+        Long usuarioId = carritoService.obtenerUsuarioIdDesdeEmail(auth.getName());
         return ResponseEntity.ok(carritoService.getCarritoActivo(usuarioId));
     }
 
-    // POST /carrito/{usuarioId}/items
-    @PostMapping("/{usuarioId}/items")
+    // POST antes /carrito/{usuarioId}/items
+    //ahora /items
+    @PostMapping("/items")
+   
     public ResponseEntity<ItemCarritoResponse> agregarItem(
-        @PathVariable Long usuarioId,
-        @RequestBody ItemCarritoRequest request) {
-    ItemCarritoResponse nuevoItem = carritoService.agregarItem(
-            usuarioId,
-            request.getLibroId(),
-            request.getCantidad());
-    return new ResponseEntity<>(nuevoItem, HttpStatus.CREATED);
-}
+            Authentication auth,
+            @RequestBody ItemCarritoRequest request) {
+        Long usuarioId = carritoService.obtenerUsuarioIdDesdeEmail(auth.getName());
+        return new ResponseEntity<>(carritoService.agregarItem(usuarioId, request.getLibroId(), request.getCantidad()), HttpStatus.CREATED);
+    }
 
 
     // PUT /carrito/{usuarioId}/items/{itemId}
     // itemId porque el service pide itemId para modificar
-    @PutMapping("/{usuarioId}/items/{itemId}")
+    @PutMapping("/items/{itemId}")
     public ResponseEntity<ItemCarritoResponse> modificarItem(
-        @PathVariable Long usuarioId,
-        @PathVariable Long itemId,
-        @RequestBody ItemCarritoRequest request) {
-    return ResponseEntity.ok(
-        carritoService.modificarItem(usuarioId, itemId, request.getCantidad()));
+            Authentication auth,
+            @PathVariable Long itemId,
+            @RequestBody ItemCarritoRequest request) {
+        Long usuarioId = carritoService.obtenerUsuarioIdDesdeEmail(auth.getName());
+        return ResponseEntity.ok(carritoService.modificarItem(usuarioId, itemId, request.getCantidad()));
     }
+
 
     // DELETE /carrito/{usuarioId}/items/{itemId}
-    @DeleteMapping("/{usuarioId}/items/{itemId}")
     public ResponseEntity<Void> eliminarItem(
-        @PathVariable Long usuarioId,
-        @PathVariable Long itemId) {
-    carritoService.eliminarItem(usuarioId, itemId);
-    return ResponseEntity.noContent().build();
+            Authentication auth,
+            @PathVariable Long itemId) {
+        Long usuarioId = carritoService.obtenerUsuarioIdDesdeEmail(auth.getName());
+        carritoService.eliminarItem(usuarioId, itemId);
+        return ResponseEntity.noContent().build();
     }
 
+
     // DELETE /carrito/{usuarioId}/items (Vaciar carrito)
-    @DeleteMapping("/{usuarioId}/items")
-    public ResponseEntity<Void> vaciarCarrito(@PathVariable Long usuarioId) {
+    @DeleteMapping("/items")
+    public ResponseEntity<Void> vaciarCarrito(Authentication auth) {
+        Long usuarioId = carritoService.obtenerUsuarioIdDesdeEmail(auth.getName());
         carritoService.vaciarCarrito(usuarioId);
         return ResponseEntity.noContent().build();
     }
 
     // POST /carrito/{usuarioId}/checkout
-    @PostMapping("/{usuarioId}/checkout")
-    public ResponseEntity<OrdenDetalleResponse> checkout(@PathVariable Long usuarioId) 
-            throws RecursoNotFoundException {
+    @PostMapping("/checkout")
+    public ResponseEntity<OrdenDetalleResponse> checkout(Authentication auth) throws RecursoNotFoundException {
+        Long usuarioId = carritoService.obtenerUsuarioIdDesdeEmail(auth.getName());
         Orden orden = carritoService.checkout(usuarioId);
         return ResponseEntity.ok(ordenService.getById(orden.getIdOrden()));
     }

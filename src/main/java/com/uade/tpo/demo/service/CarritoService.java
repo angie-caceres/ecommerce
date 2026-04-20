@@ -10,8 +10,8 @@ import com.uade.tpo.demo.entity.dto.ItemCarritoResponse;
 public interface CarritoService {
     public CarritoResponse getCarritoActivo(Long usuarioId);
     public ItemCarritoResponse agregarItem(Long usuarioId, Long libroId, int cantidad);
-    public ItemCarritoResponse modificarItem(Long carritoId, Long itemId, int cantidad);
-
+    public ItemCarritoResponse modificarItem(Long usuarioId, Long itemId, int cantidad);
+    public Long obtenerUsuarioIdDesdeEmail(String email);
     public Orden checkout(Long usuarioId);
     void eliminarItem(Long usuarioId, Long itemId);
     void vaciarCarrito(Long usuarioId);

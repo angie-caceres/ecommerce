@@ -2,55 +2,84 @@ package com.uade.tpo.demo.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-
-import com.uade.tpo.demo.entity.Carrito;
+import com.uade.tpo.demo.entity.Role;
 import com.uade.tpo.demo.entity.User;
+import com.uade.tpo.demo.entity.dto.UserRequest;
+import com.uade.tpo.demo.entity.dto.UserResponse;
 import com.uade.tpo.demo.exceptions.UserDuplicateException;
-import com.uade.tpo.demo.repository.CarritoRepository;
 import com.uade.tpo.demo.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private CarritoRepository carritoRepository;
+    private PasswordEncoder passwordEncoder;
 
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getUsers() {
+        return userRepository.findAll()
+            .stream()
+            .map(user -> UserResponse.builder()
+                .idUsuario(user.getIdUsuario())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole())
+                .build())
+            .collect(Collectors.toList());
     }
 
+    
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
     }
 
-    
     @Transactional
-    public User createUser(String username, String email, String password)
-        throws UserDuplicateException {
-    if (userRepository.existsByUsername(username))
-        throw new UserDuplicateException();
-    
-    User user = userRepository.save(new User(username, email, password));
-    Carrito carrito = new Carrito(user, LocalDateTime.now(), "ACTIVO", 0);
-    carritoRepository.save(carrito);
-    
-    return user;
-}
-    
+    public User createUser(String email, String password, String firstName, String lastName, Role role)
+            throws UserDuplicateException {
+        if (userRepository.existsByEmail(email))
+            throw new UserDuplicateException();
+        return null; // ya no se usa, el registro pasa por AuthenticationService
+    }
+
     public Optional<User> updateUserEmail(Long userId, String newEmail) {
         return userRepository.findById(userId).map(user -> {
             user.setEmail(newEmail);
-        return userRepository.save(user);
+            return userRepository.save(user);
         });
     }
+
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow();
+        return UserResponse.builder()
+                .idUsuario(user.getIdUsuario())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole())
+                .build();
+    }
+
+    public UserResponse actualizarUser(String email, UserRequest request) {
+        User user = userRepository.findByEmail(email).orElseThrow();
+        
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getPassword() != null) user.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) user.setLastName(request.getLastName());
+        
+        userRepository.save(user);
+        return getUserByEmail(user.getEmail());
+    }
+
 }

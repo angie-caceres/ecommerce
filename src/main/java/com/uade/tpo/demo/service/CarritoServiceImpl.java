@@ -19,6 +19,7 @@ import com.uade.tpo.demo.entity.dto.ItemCarritoResponse;
 import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 import com.uade.tpo.demo.repository.CarritoRepository;
 import com.uade.tpo.demo.repository.ItemCarritoRepository;
+import com.uade.tpo.demo.repository.UserRepository;
 
 @Service
 public class CarritoServiceImpl implements CarritoService {
@@ -35,6 +36,16 @@ public class CarritoServiceImpl implements CarritoService {
     @Autowired
     private OrdenService ordenService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+
+    public Long obtenerUsuarioIdDesdeEmail(String email) {
+    return userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "Usuario no encontrado"))
+        .getIdUsuario();
+    }
     // uso interno del service
     private Carrito obtenerCarrito(Long usuarioId) {
         return carritoRepository.findByUsuarioIdUsuario(usuarioId)
@@ -109,7 +120,7 @@ public class CarritoServiceImpl implements CarritoService {
 
     // Modificar cantidad de un item
     @Override
-    public ItemCarritoResponse modificarItem(Long carritoId, Long itemId, int cantidad) {
+    public ItemCarritoResponse modificarItem(Long usuarioId, Long itemId, int cantidad) {
 
     ItemCarrito item = itemCarritoRepository.findById(itemId)
             .orElseThrow(() -> new ResponseStatusException(
@@ -124,9 +135,7 @@ public class CarritoServiceImpl implements CarritoService {
     item.setCantidad(cantidad);
     item.calcularSubtotal();
 
-    Carrito carrito = carritoRepository.findById(carritoId)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "El carrito " + carritoId + " no existe"));
+    Carrito carrito = obtenerCarrito(usuarioId);
     List<ItemCarrito> todosLosItems = itemCarritoRepository.findByCarritoId(carrito.getIdCarrito());
     float nuevoTotal = todosLosItems.stream()
         .map(ItemCarrito::getSubtotal)
@@ -217,7 +226,6 @@ public class CarritoServiceImpl implements CarritoService {
 
     // Vaciar items del carrito (mantiene el carrito activo)
     @Override
-    
     public void vaciarCarrito(Long usuarioId) {
         Carrito carrito = obtenerCarrito(usuarioId);
         itemCarritoRepository.deleteByCarritoId(carrito.getIdCarrito());

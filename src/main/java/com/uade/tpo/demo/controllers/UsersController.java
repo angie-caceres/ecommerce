@@ -1,55 +1,51 @@
 package com.uade.tpo.demo.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.UserRequest;
-import com.uade.tpo.demo.exceptions.UserDuplicateException;
-import com.uade.tpo.demo.service.UserServiceImpl;
+import com.uade.tpo.demo.entity.dto.UserResponse;
+import com.uade.tpo.demo.controllers.auth.AuthenticationRequest;
+import com.uade.tpo.demo.controllers.auth.AuthenticationResponse;
+import com.uade.tpo.demo.service.AuthenticationService;
+import com.uade.tpo.demo.service.UserService;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("users")
+@RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 public class UsersController {
 
-    @Autowired
-    private UserServiceImpl userService;
+    private final UserService userService;
+    private final AuthenticationService authenticationService;
 
+    // el admin puede ver a todos los usuarios
     @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
+    public ResponseEntity<List<UserResponse>> getUsers() {
         return ResponseEntity.ok(userService.getUsers());
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable Long userId) {
-        Optional<User> result = userService.getUserById(userId);
-        if (result.isPresent())
-            return ResponseEntity.ok(result.get());
-        return ResponseEntity.noContent().build();
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getUserByEmail(Authentication auth) {
+        UserResponse user = userService.getUserByEmail(auth.getName());
+        return ResponseEntity.ok(user);
     }
 
-    @PostMapping
-  public ResponseEntity<Object> createUser(@RequestBody UserRequest userRequest)
-            throws UserDuplicateException {
-            User result = userService.createUser(
-            userRequest.getUsername(),
-            userRequest.getEmail(),
-            userRequest.getPassword()
-            //userRequest.getRole()
-        );
-        return ResponseEntity.created(URI.create("/users/" + result.getIdUsuario())).body(result);
-    }
-
-    @PutMapping("/{userId}/email")
-    public ResponseEntity<User> updateUserEmail(@PathVariable Long userId, @RequestBody UserRequest userRequest) {
-        Optional<User> result = userService.updateUserEmail(userId, userRequest.getEmail());
-        if (result.isPresent())
-            return ResponseEntity.ok(result.get());
-        return ResponseEntity.notFound().build();
+    @PatchMapping("/me")
+    public ResponseEntity<?> actualizarUser(
+            Authentication auth,
+            @RequestBody UserRequest request) {
+        UserResponse actualizado = userService.actualizarUser(auth.getName(), request);
+        if (request.getPassword() != null) {
+            AuthenticationRequest authRequest = new AuthenticationRequest(actualizado.getEmail(), request.getPassword());
+            return ResponseEntity.ok(authenticationService.authenticate(authRequest));
+        }
+        return ResponseEntity.ok(actualizado); //si cambia la passw por un null no se actualiza
     }
 }

@@ -28,7 +28,9 @@ import com.uade.tpo.demo.repository.EditorialRepository;
 import com.uade.tpo.demo.repository.GeneroRepository;
 import com.uade.tpo.demo.repository.ImagenRepository;
 import com.uade.tpo.demo.repository.LibroRepository;
-//import com.uade.tpo.demo.repository.UserRepository;
+import com.uade.tpo.demo.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.uade.tpo.demo.service.*;
 import java.util.Base64;
 import java.sql.Blob;
@@ -44,7 +46,7 @@ public class LibroServiceImpl implements LibroService {
     private final EditorialRepository editorialRepository;
     private final DescuentoRepository descuentoRepository;
     private final ImagenRepository imagenRepository; 
-    //private final UserRepository userRepository;
+    private final UserRepository userRepository;
     private final AutorRepository autorRepository;
 
     @Override
@@ -77,7 +79,6 @@ public class LibroServiceImpl implements LibroService {
             }
             return libros;
         }
-
     
         return libroRepository.findAll();
     }
@@ -142,6 +143,11 @@ public class LibroServiceImpl implements LibroService {
         libro.setGenero(genero);
         libro.setEditorial(editorial);
         libro.setAutores(autores);
+
+        // obtener el admin autenticado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User admin = userRepository.findByEmail(auth.getName()).orElseThrow();
+        libro.setAdministrador(admin);
 
         return libroRepository.save(libro);
     }

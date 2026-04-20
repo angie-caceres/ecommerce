@@ -71,11 +71,11 @@ public class Libro {
     )
     private List<Autor> autores;
 
-/*
+
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "idAdministrador")
     private User administrador;
 
     
-*/
+
 }

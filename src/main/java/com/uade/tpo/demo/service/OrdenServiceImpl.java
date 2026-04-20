@@ -22,6 +22,7 @@ import com.uade.tpo.demo.entity.Libro;
 import com.uade.tpo.demo.entity.Orden;
 import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 import com.uade.tpo.demo.repository.OrdenRepository;
+import com.uade.tpo.demo.repository.UserRepository;
 
 @Service
 public class OrdenServiceImpl implements OrdenService {
@@ -32,8 +33,16 @@ public class OrdenServiceImpl implements OrdenService {
     @Autowired
     private ItemOrdenService itemOrdenService;
 
-    //@Autowired
-    //private LibroService libroService;
+    @Autowired
+    private UserRepository userRepository;
+
+
+    public Long obtenerUsuarioIdDesdeEmail(String email) {
+    return userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "Usuario no encontrado"))
+        .getIdUsuario();
+}
 
     // Obtener detalle de una orden con sus items embedidos
     @Override
