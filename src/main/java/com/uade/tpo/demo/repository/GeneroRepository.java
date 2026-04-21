@@ -9,8 +9,6 @@ import java.util.Optional;
 @Repository
 public interface GeneroRepository extends JpaRepository<Genero, Long> {
 
-   /* @Query("SELECT g FROM Genero g WHERE g.nombre = ?1")
-    List<Genero> findByNombre(String nombre);*/
     @Query("SELECT g FROM Genero g WHERE g.nombre = ?1")
     Optional<Genero> findByNombre(String nombre);
 }

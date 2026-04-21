@@ -11,7 +11,8 @@ import com.uade.tpo.demo.exceptions.*;
 
 public interface EditorialService {
     List<Editorial> getEditoriales();
-    //Optional<Editorial> getEditorialById(Long id);
+    void deleteEditorial(Long id);
+    Editorial updateEditorial(Long id, String nombre);
     Editorial getEditorialByNombre(String nombre);
     Editorial createEditorial(String nombre) throws RecursoDuplicateException;
 }

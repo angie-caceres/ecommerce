@@ -10,4 +10,5 @@ public interface GeneroService {
     Genero createGenero(String nombre) throws RecursoDuplicateException;
     Genero getGeneroById(Long id) throws RecursoNotFoundException;
     void deleteGenero(Long id) throws RecursoNotFoundException;
+    Genero updateGenero(Long id, String nombre) throws RecursoNotFoundException;
 }

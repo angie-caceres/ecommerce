@@ -12,7 +12,4 @@ public interface ItemOrdenService {
 
     List<ItemOrdenResponse> getItemsByOrden(Long idOrden);
 
-    //Float getTotalByOrden(Long idOrden);
-
-   // void deleteItemOrden(Long id) throws RecursoNotFoundException;
 }

@@ -25,13 +25,7 @@ public class EditorialController {
     public ResponseEntity<List<Editorial>> getEditoriales() {
         return ResponseEntity.ok(editorialService.getEditoriales());
     }
-   /*@GetMapping("/{id}")
-    public ResponseEntity<Editorial> getEditorialById(@PathVariable Long id) {
-        Optional<Editorial> result = editorialService.getEditorialById(id);
-        if (result.isPresent())
-            return ResponseEntity.ok(result.get());
-        return ResponseEntity.noContent().build();
-    }*/
+   
 
     @GetMapping("/buscar")
     public ResponseEntity<Editorial> getEditorialByNombre(@RequestParam String nombre) 
@@ -44,6 +38,17 @@ public class EditorialController {
             throws RecursoDuplicateException {
         Editorial result = editorialService.createEditorial(request.getNombre());
         return ResponseEntity.created(URI.create("/editoriales/" + result.getId())).body(result);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEditorial(@PathVariable Long id) {
+        editorialService.deleteEditorial(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Editorial> updateEditorial(@PathVariable Long id, @RequestBody EditorialRequest request) {
+        return ResponseEntity.ok(editorialService.updateEditorial(id, request.getNombre()));
     }
 
     

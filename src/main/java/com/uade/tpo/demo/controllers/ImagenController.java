@@ -40,4 +40,14 @@ public class ImagenController {
         imageService.create(Imagen.builder().image(blob).build());
         return "created";
     }
+
+    // PATCH /imagenes/{id}
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> updateImage(@PathVariable long id, AddFileRequest request) 
+            throws IOException, SerialException, SQLException {
+        byte[] bytes = request.getFile().getBytes();
+        Blob blob = new javax.sql.rowset.serial.SerialBlob(bytes);
+        imageService.update(id, Imagen.builder().image(blob).build());
+        return ResponseEntity.ok("updated");
+    }
 }

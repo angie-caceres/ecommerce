@@ -35,7 +35,6 @@ public class Orden {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idOrden;
 
-    //private Long idUsuario;
     @Column
     private Date fechaVenta;
 
@@ -44,8 +43,7 @@ public class Orden {
 
     @Column
     private String estado;
-    //private Long idCarrito;
-
+ 
     @Column
     private String metodoPago;
 

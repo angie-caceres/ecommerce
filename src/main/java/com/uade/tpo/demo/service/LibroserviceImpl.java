@@ -236,15 +236,7 @@ public class LibroServiceImpl implements LibroService {
     return libroRepository.save(libro);
     }
 
-    /*public void devolverStock(Long id, int cantidad) {
-    Libro libro = libroRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Libro con id " + id + " no encontrado"));
-
-    libro.setStock(libro.getStock() + cantidad);
-    libroRepository.save(libro);
-    
-    }*/
+   
    @Override
     public Libro asignarDescuento(Long libroId, Long descuentoId) {
         Libro libro = getLibroById(libroId);
@@ -274,8 +266,7 @@ public class LibroServiceImpl implements LibroService {
         .map(a -> a.getNombre() + " " + a.getApellido())
         .collect(Collectors.toList()));
 
-    /*if (libro.getVendedor() != null)
-        response.setIdVendedor(libro.getVendedor().getIdUsuario());*/
+  
     if (libro.getImagen() != null) {
     try {
         Blob blob = libro.getImagen().getImage();

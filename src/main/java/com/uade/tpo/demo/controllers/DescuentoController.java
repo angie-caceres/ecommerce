@@ -34,7 +34,7 @@ public class DescuentoController {
         return ResponseEntity.ok(descuentoService.getDescuentos(PageRequest.of(page, size)));
     }
 
-    @PatchMapping("/{id}/toggle")  // PATCH porque es una modificación parcial
+    @PatchMapping("/{id}/toggle")  // PATCH porque es una modificación parcial, se desactiva el Desc
     public ResponseEntity<Descuento> toggleActivo(@PathVariable Long id)
             throws RecursoNotFoundException {
         return ResponseEntity.ok(descuentoService.toggleActivo(id));

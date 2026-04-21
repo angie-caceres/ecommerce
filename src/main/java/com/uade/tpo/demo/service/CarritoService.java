@@ -15,5 +15,5 @@ public interface CarritoService {
     public Orden checkout(Long usuarioId);
     void eliminarItem(Long usuarioId, Long itemId);
     void vaciarCarrito(Long usuarioId);
-    //public void vaciarCarritosVencidos();
+    
 }

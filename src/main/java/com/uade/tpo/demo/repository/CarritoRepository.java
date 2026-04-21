@@ -11,7 +11,7 @@ import com.uade.tpo.demo.entity.Carrito;
 
 @Repository
 public interface CarritoRepository extends JpaRepository<Carrito, Long> {
-      // para getCarritoActivo(usuarioId)
+    
     Optional<Carrito> findByUsuarioIdUsuario(Long idUsuario);
 
     List<Carrito> findByEstadoAndFechaUltimaActividadBefore(String estado, LocalDateTime limite);

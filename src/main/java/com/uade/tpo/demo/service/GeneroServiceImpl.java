@@ -29,7 +29,7 @@ public class GeneroServiceImpl implements GeneroService {
         genero.setNombre(nombre);
         return generoRepository.save(genero);
     }
-    
+
     //Obtener género por ID
     @Override
     public Genero getGeneroById(Long id) throws RecursoNotFoundException {
@@ -43,4 +43,13 @@ public class GeneroServiceImpl implements GeneroService {
                 .orElseThrow(() -> new RecursoNotFoundException());
         generoRepository.delete(genero);
     }
+
+    @Override
+    public Genero updateGenero(Long id, String nombre) throws RecursoNotFoundException {
+        Genero genero = getGeneroById(id);
+        if (nombre != null) genero.setNombre(nombre);
+        return generoRepository.save(genero);
+    }
+
+    
 }

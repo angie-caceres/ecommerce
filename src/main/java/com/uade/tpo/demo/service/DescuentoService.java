@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 
 import com.uade.tpo.demo.exceptions.*;
 import com.uade.tpo.demo.entity.Descuento;
-//import java.util.Optional;
 
 
 public interface DescuentoService {

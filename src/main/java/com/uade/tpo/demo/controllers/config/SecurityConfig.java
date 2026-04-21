@@ -50,10 +50,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/generos/**").hasAnyRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.POST, "/generos/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.DELETE, "/generos/**").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.PATCH, "/generos/**").hasRole("ADMINISTRADOR")
 
                 // Editoriales
                 .requestMatchers(HttpMethod.GET, "/editoriales/**").hasAnyRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.POST, "/editoriales/**").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.DELETE, "/editoriales/**").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.PATCH, "/editoriales/**").hasRole("ADMINISTRADOR")
 
                 // Descuentos/imagen
                 .requestMatchers(HttpMethod.GET, "/descuentos/**").hasRole("ADMINISTRADOR")
@@ -63,6 +66,8 @@ public class SecurityConfig {
 
                 // Autores - solo ADMIN
                 .requestMatchers("/autores/**").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.DELETE, "/autores/**").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.PATCH, "/autores/**").hasRole("ADMINISTRADOR")
                 
 
                 //Cada usuario puede ver sus datos y actualizarlos (menos el rol). El ADMINISTADOR puede ver todos los usuarios

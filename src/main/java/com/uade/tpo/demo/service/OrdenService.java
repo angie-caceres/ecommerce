@@ -14,5 +14,5 @@ public interface OrdenService {
     List<OrdenResponse> getOrdenes();
     Orden crearDesdeCarrito(Carrito carrito, List<ItemCarrito> items);
     public Long obtenerUsuarioIdDesdeEmail(String email);
-  //  Orden cambiarEstado(Long idOrden, String estado) throws RecursoNotFoundException;
+
 }

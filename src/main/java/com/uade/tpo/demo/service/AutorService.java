@@ -3,6 +3,7 @@ package com.uade.tpo.demo.service;
 import java.util.List;
 
 import com.uade.tpo.demo.entity.Autor;
+import com.uade.tpo.demo.entity.dto.AutorRequest;
 import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 
 public interface AutorService {
@@ -12,4 +13,7 @@ public interface AutorService {
     Autor getAutorById(Long id) throws RecursoNotFoundException;
 
     Autor createAutor(String nombre, String apellido, String nacionalidad);
+
+    void deleteAutor(Long id) throws RecursoNotFoundException;
+    Autor updateAutor(Long id, AutorRequest request) throws RecursoNotFoundException;
 }

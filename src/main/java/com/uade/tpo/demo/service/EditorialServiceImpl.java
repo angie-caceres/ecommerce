@@ -37,4 +37,19 @@ public class EditorialServiceImpl implements EditorialService {
         return editorialRepository.save(new Editorial(nombre));
     }
 
+    public void deleteEditorial(Long id) {
+    Editorial editorial = editorialRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "No existe la editorial con id: " + id));
+    editorialRepository.delete(editorial);
+}
+
+    public Editorial updateEditorial(Long id, String nombre) {
+        Editorial editorial = editorialRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "No existe la editorial con id: " + id));
+        if (nombre != null) editorial.setNombre(nombre);
+        return editorialRepository.save(editorial);
+    }
+
 }

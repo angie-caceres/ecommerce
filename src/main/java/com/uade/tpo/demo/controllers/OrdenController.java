@@ -45,13 +45,4 @@ public class OrdenController {
         return ResponseEntity.ok(ordenService.getById(id));
     }
 
-    /*@PatchMapping("/{id}/estado")// solo para ADMIN, cambiar a CANCELADA
-    public ResponseEntity<Orden> cambiarEstado(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        try {
-            String estado = body.get("estado");
-            return ResponseEntity.ok(ordenService.cambiarEstado(id, estado));
-        } catch (RecursoNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }*/
 }

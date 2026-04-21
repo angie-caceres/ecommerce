@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,11 +31,11 @@ public class GeneroController {
     }
     //Obtener género por ID
     @GetMapping("/{id}")
-public ResponseEntity<Genero> getGeneroById(@PathVariable Long id) 
+    public ResponseEntity<Genero> getGeneroById(@PathVariable Long id) 
         throws RecursoNotFoundException {
 
     return ResponseEntity.ok(generoService.getGeneroById(id));
-}
+    }
     //Crear género
     @PostMapping
     public ResponseEntity<Object> createGenero(@RequestBody GeneroRequest request)
@@ -50,5 +51,11 @@ public ResponseEntity<Genero> getGeneroById(@PathVariable Long id)
     public ResponseEntity<Void> deleteGenero(@PathVariable Long id) throws RecursoNotFoundException {
         generoService.deleteGenero(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Genero> updateGenero(@PathVariable Long id, @RequestBody GeneroRequest request) 
+            throws RecursoNotFoundException {
+        return ResponseEntity.ok(generoService.updateGenero(id, request.getNombre()));
     }
 }

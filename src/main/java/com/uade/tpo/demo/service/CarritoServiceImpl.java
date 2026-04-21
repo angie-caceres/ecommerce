@@ -176,15 +176,15 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
 
-    // Checkout — lógica principal
+    // Checkout: lógica principal
     @Override
     @Transactional
     public Orden checkout(Long usuarioId) {
 
-        // 1. obtener carrito activo
+        // 1 obtener carrito activo
         Carrito carrito = obtenerCarrito(usuarioId);
 
-        // 2. obtener items
+        // 2 obtener items
         List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carrito.getIdCarrito());
     
 
@@ -192,7 +192,7 @@ public class CarritoServiceImpl implements CarritoService {
         throw new ResponseStatusException(
             HttpStatus.BAD_REQUEST, "El carrito está vacío");
     
-        // 3. verificar stock de TODOS los items antes de descontar cualquiera
+        // 3 verificar stock de TODOS los items antes de descontar cualquiera
     
         for (ItemCarrito item : items) {
         if (!libroService.tieneStock(item.getLibro().getIdLibro(), item.getCantidad()))
@@ -200,7 +200,7 @@ public class CarritoServiceImpl implements CarritoService {
                 HttpStatus.BAD_REQUEST, "No hay stock insuficiente para: " + item.getLibro().getTitulo());
     }
 
-        // 4. descontar stock y aplicar descuento
+        // 4 descontar stock y aplicar descuento
         for (ItemCarrito item : items) {
         libroService.descontarStock(item.getLibro().getIdLibro(), item.getCantidad());
 
@@ -215,16 +215,16 @@ public class CarritoServiceImpl implements CarritoService {
         itemCarritoRepository.save(item);
     }
 
-        // 5. crear la orden con sus items
+        // 5 crear la orden con sus items
         Orden orden = ordenService.crearDesdeCarrito(carrito, items);
 
-        // 6. vaciar el carrito
+        // 6 vaciar el carrito
         vaciarCarrito(usuarioId);
 
         return orden;
     }
 
-    // Vaciar items del carrito (mantiene el carrito activo)
+    // Vaciar items del carrito (igualmente se mantiene el carrito activo)
     @Override
     public void vaciarCarrito(Long usuarioId) {
         Carrito carrito = obtenerCarrito(usuarioId);
@@ -233,26 +233,5 @@ public class CarritoServiceImpl implements CarritoService {
         carritoRepository.save(carrito);
     }
 
-    // Marcar carrito como abandonado
-    /*@Override
-    public void marcarAbandonado(Long carritoId) {
-        Carrito carrito = carritoRepository.findById(carritoId)
-                .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "El carrito " + carritoId + " no existe"));
-        carrito.setEstado("ABANDONADO");
-        carritoRepository.save(carrito);
-    }*/
 
-    // Llamado por el job cada 1 hora
-    
-   /* @Override
-public void vaciarCarritosVencidos() {
-    LocalDateTime limite = LocalDateTime.now().minusHours(48);
-    List<Carrito> vencidos = carritoRepository.findCarritosVencidos(limite);
-    for (Carrito carrito : vencidos) {
-        vaciarCarrito(carrito.getIdCarrito());
-        carrito.setEstado("ABANDONADO");
-        carritoRepository.save(carrito);
-    }
-}*/ 
 }

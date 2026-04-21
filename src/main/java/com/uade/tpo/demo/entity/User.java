@@ -28,10 +28,9 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-//@EqualsAndHashCode(exclude = "carrito")
+
 public class User implements UserDetails {
 
-    //public User() {}
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

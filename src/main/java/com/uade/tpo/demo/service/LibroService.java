@@ -23,17 +23,10 @@ public interface LibroService {
     Libro actualizarAutores(Long id, List<Long> idAutores);
     Libro asignarImagen(Long libroId, Long imagenId);
 
-
-   // List<Libro> getLibrosByGenero(Long idGenero) throws RecursoNotFoundException;
-
-    //List<Libro> getLibrosByPrecio(float precioMin, float precioMax);
-
-    //List<Libro> getLibrosByAutor(Long idAutor) throws RecursoNotFoundException;
-
     boolean tieneStock(Long id, int cantidad);
 
     void descontarStock(Long id, int cantidad);
-    //void devolverStock(Long id, int cantidad);
+  
     LibroResponse convertirAResponse(Libro libro);
 
 }

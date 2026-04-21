@@ -102,7 +102,7 @@ public class OrdenServiceImpl implements OrdenService {
     @Transactional
     public Orden crearDesdeCarrito(Carrito carrito, List<ItemCarrito> items) {
 
-        // 1. crear la cabecera de la orden
+        // 1 crear la cabecera de la orden
         Orden nuevaOrden = new Orden();
         nuevaOrden.setUsuario(carrito.getUsuario());
         nuevaOrden.setCarrito(carrito);
@@ -110,7 +110,7 @@ public class OrdenServiceImpl implements OrdenService {
         nuevaOrden.setEstado("CONFIRMADA");
         nuevaOrden.setMetodoPago("TRANSFERENCIA");
 
-        // 2. transformar items del carrito a items de la orden
+        // 2 transformar items del carrito a items de la orden
         List<ItemOrden> itemsOrden = items.stream().map(itemCarrito -> {
             ItemOrden itemOrden = new ItemOrden();
             itemOrden.setLibro(itemCarrito.getLibro());
@@ -121,46 +121,16 @@ public class OrdenServiceImpl implements OrdenService {
             return itemOrden;
         }).collect(Collectors.toList());
 
-        // 3. asignar items y calcular total
+        // 3 asignar items y calcular total
         nuevaOrden.setItems(itemsOrden);
         float total = (float) itemsOrden.stream()
                 .mapToDouble(ItemOrden::getSubtotal)
                 .sum();
         nuevaOrden.setTotal(total);
 
-        // 4. guardar todo con cascade
+        // 4 guardar todo con cascade
         return ordenRepository.save(nuevaOrden);
     }
 
-    // Cambiar estado — solo ADMIN
-    // si cancela → devuelve el stock de cada libro
-    /*@Override
-    @Transactional
-    public Orden cambiarEstado(Long idOrden, String estado) throws RecursoNotFoundException {
-        Orden orden = ordenRepository.findById(idOrden)
-                .orElseThrow(RecursoNotFoundException::new);
-
-        // validar que el estado sea válido
-        if (!estado.equals("CONFIRMADA") && !estado.equals("CANCELADA"))
-            throw new IllegalArgumentException("Estado inválido: " + estado);
-
-        // si cancela → devolver stock
-        if (estado.equals("CANCELADA")) {
-
-            // no permitir cancelar una orden ya cancelada
-            if (orden.getEstado().equals("CANCELADA"))
-                throw new IllegalArgumentException("La orden ya está cancelada");
-
-            for (ItemOrden item : orden.getItems()) {
-                Libro libro = libroService.getLibroById(item.getIdLibro());
-                libroService.actualizarStock(
-                    item.getIdLibro(),
-                    libro.getStock() + item.getCantidad()
-                );
-            }
-        }
-
-        orden.setEstado(estado);
-        return ordenRepository.save(orden);
-    }*/
+  
 }
