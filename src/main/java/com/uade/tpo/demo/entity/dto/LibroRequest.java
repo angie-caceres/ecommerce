@@ -15,5 +15,5 @@ public class LibroRequest {
     private Long  idEditorial;
     private Long idDescuento;
     private List<Long > idAutores;
-    /*private Long idVendedor;*/
+    
 }

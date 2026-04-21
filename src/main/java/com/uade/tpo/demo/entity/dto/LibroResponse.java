@@ -15,7 +15,6 @@ public class LibroResponse {
     private String editorial;
     private List<String> autores;
     private String imagen; // base64
-   // private Long idVendedor;
     private Double porcentajeDescuento;
 
     

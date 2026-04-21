@@ -1,7 +1,7 @@
 package com.uade.tpo.demo.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;

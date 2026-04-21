@@ -1,7 +1,5 @@
 package com.uade.tpo.demo.entity;
 
-//import javax.persistence.JoinColumns;
-
 import jakarta.persistence.Entity;
 
 import java.sql.Blob;
@@ -18,8 +16,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
-
-//import jakarta.persistence.ManyToOne;
 
 
 @Data

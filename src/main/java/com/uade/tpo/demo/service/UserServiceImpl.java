@@ -44,13 +44,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId);
     }
 
-    @Transactional
-    public User createUser(String email, String password, String firstName, String lastName, Role role)
-            throws UserDuplicateException {
-        if (userRepository.existsByEmail(email))
-            throw new UserDuplicateException();
-        return null; // ya no se usa, el registro pasa por AuthenticationService
-    }
 
     public Optional<User> updateUserEmail(Long userId, String newEmail) {
         return userRepository.findById(userId).map(user -> {

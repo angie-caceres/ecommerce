@@ -14,9 +14,6 @@ public interface UserService {
     public List<UserResponse> getUsers();
 
     public Optional<User> getUserById(Long userId);
-
-    public User createUser(String email, String password, String firstName, String lastName, Role role)
-            throws UserDuplicateException;
     
     public Optional<User> updateUserEmail(Long userId, String newEmail);
 

@@ -1,7 +1,7 @@
 package com.uade.tpo.demo.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.Data;
@@ -44,7 +43,7 @@ public class Carrito {
     private float total;
 
     @OneToMany(mappedBy = "carrito")
-    private List<ItemCarrito> items; //= new ArrayList<>();
+    private List<ItemCarrito> items; 
 
     @OneToOne
     @JoinColumn(name = "idUsuario")
