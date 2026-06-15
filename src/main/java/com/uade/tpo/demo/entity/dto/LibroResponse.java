@@ -10,6 +10,7 @@ public class LibroResponse {
     private String titulo;
     private String descripcion;
     private float precio;
+    private int paginas;
     private int stock;
     private String genero;
     private String editorial;

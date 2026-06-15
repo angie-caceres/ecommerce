@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .requestMatchers("/error").permitAll()
 
                 // Libros - ver: ambos roles
-                .requestMatchers(HttpMethod.GET, "/libros/**").hasAnyRole("USER", "ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/libros/**").permitAll()
                 // Libros - crear/modificar/eliminar: solo ADMIN
                 .requestMatchers(HttpMethod.POST, "/libros/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/libros/**").hasRole("ADMINISTRADOR")
@@ -47,13 +47,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/ordenes/**").hasRole("ADMINISTRADOR")//ve ordendes por id de user, id de orden y todas
 
                 // Géneros
-                .requestMatchers(HttpMethod.GET, "/generos/**").hasAnyRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/generos/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/generos/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.DELETE, "/generos/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/generos/**").hasRole("ADMINISTRADOR")
 
                 // Editoriales
-                .requestMatchers(HttpMethod.GET, "/editoriales/**").hasAnyRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/editoriales/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/editoriales/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.DELETE, "/editoriales/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/editoriales/**").hasRole("ADMINISTRADOR")

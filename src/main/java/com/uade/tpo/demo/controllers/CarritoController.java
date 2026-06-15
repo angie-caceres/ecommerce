@@ -68,8 +68,27 @@ public class CarritoController {
         return ResponseEntity.ok(carritoService.modificarItem(usuarioId, itemId, request.getCantidad()));
     }
 
+//nuevo
+    @PutMapping("/items/{itemId}/incrementar")
+    public ResponseEntity<ItemCarritoResponse> incrementarItem(
+            Authentication auth,
+            @PathVariable Long itemId) {
+        Long usuarioId = carritoService.obtenerUsuarioIdDesdeEmail(auth.getName());
+        return ResponseEntity.ok(carritoService.incrementarItem(usuarioId, itemId));
+    }
+
+    @PutMapping("/items/{itemId}/decrementar")
+    public ResponseEntity<ItemCarritoResponse> decrementarItem(
+            Authentication auth,
+            @PathVariable Long itemId) {
+        Long usuarioId = carritoService.obtenerUsuarioIdDesdeEmail(auth.getName());
+        ItemCarritoResponse response = carritoService.decrementarItem(usuarioId, itemId);
+        if (response == null) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(response);
+    }
 
     // DELETE /carrito/{usuarioId}/items/{itemId}
+    @DeleteMapping("/items/{itemId}")
     public ResponseEntity<Void> eliminarItem(
             Authentication auth,
             @PathVariable Long itemId) {

@@ -158,6 +158,26 @@ public class CarritoServiceImpl implements CarritoService {
     return response;
     }
 
+    @Override
+    public ItemCarritoResponse incrementarItem(Long usuarioId, Long itemId) {
+        ItemCarrito item = itemCarritoRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "El item " + itemId + " no existe"));
+        return modificarItem(usuarioId, itemId, item.getCantidad() + 1);
+    }
+
+    @Override
+    public ItemCarritoResponse decrementarItem(Long usuarioId, Long itemId) {
+        ItemCarrito item = itemCarritoRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "El item " + itemId + " no existe"));
+        if (item.getCantidad() <= 1) {
+            eliminarItem(usuarioId, itemId);
+            return null;
+        }
+        return modificarItem(usuarioId, itemId, item.getCantidad() - 1);
+    }
+
     // Eliminar item del carrito
     @Override
     public void eliminarItem(Long usuarioId, Long itemId) {

@@ -13,6 +13,8 @@ public interface CarritoService {
     public ItemCarritoResponse modificarItem(Long usuarioId, Long itemId, int cantidad);
     public Long obtenerUsuarioIdDesdeEmail(String email);
     public Orden checkout(Long usuarioId);
+    ItemCarritoResponse incrementarItem(Long usuarioId, Long itemId);
+    ItemCarritoResponse decrementarItem(Long usuarioId, Long itemId);
     void eliminarItem(Long usuarioId, Long itemId);
     void vaciarCarrito(Long usuarioId);
     
