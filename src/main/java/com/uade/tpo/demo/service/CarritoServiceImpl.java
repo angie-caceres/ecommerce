@@ -3,7 +3,8 @@ package com.uade.tpo.demo.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import java.util.Base64;
+import java.sql.Blob;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 import com.uade.tpo.demo.repository.CarritoRepository;
 import com.uade.tpo.demo.repository.ItemCarritoRepository;
 import com.uade.tpo.demo.repository.UserRepository;
+
 
 @Service
 public class CarritoServiceImpl implements CarritoService {
@@ -70,6 +72,17 @@ public class CarritoServiceImpl implements CarritoService {
                 itemResponse.setIdItemCarrito(item.getIdItemCarrito());
                 itemResponse.setIdLibro(item.getLibro().getIdLibro());
                 itemResponse.setTituloLibro(item.getLibro().getTitulo());
+                // Imagen — convierte el blob a base64
+            if (item.getLibro().getImagen() != null) {
+                try {
+                    Blob blob = item.getLibro().getImagen().getImage();
+                    String base64 = Base64.getEncoder()
+                        .encodeToString(blob.getBytes(1, (int) blob.length()));
+                    itemResponse.setImagen(base64);
+                } catch (Exception e) {
+                    itemResponse.setImagen(null);
+                }
+            }
                 itemResponse.setCantidad(item.getCantidad());
                 itemResponse.setPrecioUnitario(item.getPrecioUnitario());
                 itemResponse.setSubtotal(item.getSubtotal());
@@ -82,23 +95,43 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
     // Agregar item al carrito
-    @Override
-    public ItemCarritoResponse agregarItem(Long usuarioId, Long libroId, int cantidad) {
-        Carrito carrito = obtenerCarrito(usuarioId);
-        Libro libro = libroService.getLibroById(libroId);
 
-    // verificar stock
+    @Override
+public ItemCarritoResponse agregarItem(Long usuarioId, Long libroId, int cantidad) {
+    Carrito carrito = obtenerCarrito(usuarioId);
+    Libro libro = libroService.getLibroById(libroId);
+
     if (libro.getStock() < cantidad)
         throw new ResponseStatusException(
             HttpStatus.BAD_REQUEST, "Stock insuficiente para el libro: " + libro.getTitulo());
 
+    // Verificar si el libro ya está en el carrito
+    ItemCarrito itemExistente = carrito.getItems().stream()
+        .filter(i -> i.getLibro().getIdLibro().equals(libroId))
+        .findFirst()
+        .orElse(null);
+
+    if (itemExistente != null) {
+        // Si ya existe, incrementar la cantidad
+        int nuevaCantidad = itemExistente.getCantidad() + cantidad;
+        if (libro.getStock() < nuevaCantidad)
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "Stock insuficiente para el libro: " + libro.getTitulo());
+        return modificarItem(usuarioId, itemExistente.getIdItemCarrito(), nuevaCantidad);
+    }
+
+    // Si no existe, crear nuevo item
     ItemCarrito item = new ItemCarrito();
     item.setCarrito(carrito);
     item.setLibro(libro);
     item.setCantidad(cantidad);
-    item.setPrecioUnitario(libro.getPrecio());
+    float precioFinal = libro.getPrecio();
+    if (libro.getDescuento() != null && libro.getDescuento().isActivo()) {
+        float porcentaje = (float) libro.getDescuento().getPorcentaje();
+        precioFinal = precioFinal * (1 - porcentaje / 100);
+    }
+    item.setPrecioUnitario(precioFinal);
     item.calcularSubtotal();
-
 
     carrito.setFechaUltimaActividad(LocalDateTime.now());
     carrito.setTotal(carrito.getTotal() + item.getSubtotal());
@@ -106,7 +139,6 @@ public class CarritoServiceImpl implements CarritoService {
 
     ItemCarrito savedItem = itemCarritoRepository.save(item);
 
-    // convertir a DTO
     ItemCarritoResponse response = new ItemCarritoResponse();
     response.setIdItemCarrito(savedItem.getIdItemCarrito());
     response.setIdLibro(savedItem.getLibro().getIdLibro());
@@ -199,7 +231,7 @@ public class CarritoServiceImpl implements CarritoService {
     // Checkout: lógica principal
     @Override
     @Transactional
-    public Orden checkout(Long usuarioId) {
+    public Orden checkout(Long usuarioId, String metodoPago) {
 
         // 1 obtener carrito activo
         Carrito carrito = obtenerCarrito(usuarioId);
@@ -236,7 +268,7 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
         // 5 crear la orden con sus items
-        Orden orden = ordenService.crearDesdeCarrito(carrito, items);
+        Orden orden = ordenService.crearDesdeCarrito(carrito, items, metodoPago);
 
         // 6 vaciar el carrito
         vaciarCarrito(usuarioId);

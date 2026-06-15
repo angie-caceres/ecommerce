@@ -1,14 +1,20 @@
 package com.uade.tpo.demo.controllers.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -25,10 +31,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(req -> req
                 // Auth - público
-                .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/error").permitAll()
 
@@ -43,8 +49,8 @@ public class SecurityConfig {
                 .requestMatchers("/carrito/**").hasRole("USER")
 
                 // Ordenes - ver propias: USER, ver todas: ADMIN
-                .requestMatchers(HttpMethod.GET, "/ordenes/usuario/me**").hasRole("USER")//solo ve las propias
-                .requestMatchers(HttpMethod.GET, "/ordenes/**").hasRole("ADMINISTRADOR")//ve ordendes por id de user, id de orden y todas
+                .requestMatchers(HttpMethod.GET, "/ordenes/usuario/me**").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/ordenes/**").hasRole("ADMINISTRADOR")
 
                 // Géneros
                 .requestMatchers(HttpMethod.GET, "/generos/**").permitAll()
@@ -68,9 +74,8 @@ public class SecurityConfig {
                 .requestMatchers("/autores/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.DELETE, "/autores/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/autores/**").hasRole("ADMINISTRADOR")
-                
 
-                //Cada usuario puede ver sus datos y actualizarlos (menos el rol). El ADMINISTADOR puede ver todos los usuarios
+                // Usuarios
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/me").hasAnyRole("USER", "ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/api/v1/users/me").hasAnyRole("USER", "ADMINISTRADOR")
                 .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("ADMINISTRADOR")
@@ -82,5 +87,18 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

@@ -7,6 +7,7 @@ public class ItemCarritoResponse {
     private Long idItemCarrito;
     private Long idLibro;
     private String tituloLibro;
+    private String imagen;
     private int cantidad;
     private float precioUnitario;
     private float subtotal;

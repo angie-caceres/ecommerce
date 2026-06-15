@@ -100,7 +100,7 @@ public class OrdenServiceImpl implements OrdenService {
     // Crear orden desde el checkout. Llamado por CarritoService
     @Override
     @Transactional
-    public Orden crearDesdeCarrito(Carrito carrito, List<ItemCarrito> items) {
+    public Orden crearDesdeCarrito(Carrito carrito, List<ItemCarrito> items, String metodoPago) {
 
         // 1 crear la cabecera de la orden
         Orden nuevaOrden = new Orden();
@@ -108,7 +108,7 @@ public class OrdenServiceImpl implements OrdenService {
         nuevaOrden.setCarrito(carrito);
         nuevaOrden.setFechaVenta(new Date());
         nuevaOrden.setEstado("CONFIRMADA");
-        nuevaOrden.setMetodoPago("TRANSFERENCIA");
+         nuevaOrden.setMetodoPago(metodoPago);
 
         // 2 transformar items del carrito a items de la orden
         List<ItemOrden> itemsOrden = items.stream().map(itemCarrito -> {

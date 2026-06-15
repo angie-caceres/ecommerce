@@ -12,7 +12,8 @@ public interface OrdenService {
     OrdenDetalleResponse getById(Long idOrden);
     List<OrdenResponse> getByUsuario(Long idUsuario);
     List<OrdenResponse> getOrdenes();
-    Orden crearDesdeCarrito(Carrito carrito, List<ItemCarrito> items);
+   
+    Orden crearDesdeCarrito(Carrito carrito, List<ItemCarrito> items, String metodoPago);
     public Long obtenerUsuarioIdDesdeEmail(String email);
 
 }
