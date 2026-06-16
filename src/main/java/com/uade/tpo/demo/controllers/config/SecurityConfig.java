@@ -1,16 +1,21 @@
 package com.uade.tpo.demo.controllers.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +30,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(req -> req
                 // Auth - público
@@ -33,7 +39,7 @@ public class SecurityConfig {
                 .requestMatchers("/error").permitAll()
 
                 // Libros - ver: ambos roles
-                .requestMatchers(HttpMethod.GET, "/libros/**").hasAnyRole("USER", "ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/libros/**").permitAll()
                 // Libros - crear/modificar/eliminar: solo ADMIN
                 .requestMatchers(HttpMethod.POST, "/libros/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/libros/**").hasRole("ADMINISTRADOR")
@@ -44,6 +50,7 @@ public class SecurityConfig {
 
                 // Ordenes - ver propias: USER, ver todas: ADMIN
                 .requestMatchers(HttpMethod.GET, "/ordenes/usuario/me**").hasRole("USER")//solo ve las propias
+                .requestMatchers(HttpMethod.GET, "/ordenes/*").hasAnyRole("USER", "ADMINISTRADOR")
                 .requestMatchers(HttpMethod.GET, "/ordenes/**").hasRole("ADMINISTRADOR")//ve ordendes por id de user, id de orden y todas
 
                 // Géneros
@@ -82,5 +89,19 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }

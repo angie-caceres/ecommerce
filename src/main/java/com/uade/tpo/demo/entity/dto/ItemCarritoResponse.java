@@ -10,4 +10,5 @@ public class ItemCarritoResponse {
     private int cantidad;
     private float precioUnitario;
     private float subtotal;
+    private String imagen;
 }

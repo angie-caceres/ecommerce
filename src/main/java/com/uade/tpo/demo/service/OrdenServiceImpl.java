@@ -6,21 +6,16 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.uade.tpo.demo.entity.dto.OrdenDetalleResponse;
-import com.uade.tpo.demo.entity.dto.OrdenResponse;
 import com.uade.tpo.demo.entity.Carrito;
 import com.uade.tpo.demo.entity.ItemCarrito;
 import com.uade.tpo.demo.entity.ItemOrden;
-import com.uade.tpo.demo.entity.Libro;
 import com.uade.tpo.demo.entity.Orden;
-import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
+import com.uade.tpo.demo.entity.dto.OrdenDetalleResponse;
+import com.uade.tpo.demo.entity.dto.OrdenResponse;
 import com.uade.tpo.demo.repository.OrdenRepository;
 import com.uade.tpo.demo.repository.UserRepository;
 
@@ -56,6 +51,7 @@ public class OrdenServiceImpl implements OrdenService {
                 response.setTotal(orden.getTotal());
                 response.setEstado(orden.getEstado());
                 response.setMetodoPago(orden.getMetodoPago());
+                response.setItems(itemOrdenService.getItemsByOrden(orden.getIdOrden()));
                 return response;
             }).collect(Collectors.toList());
     }

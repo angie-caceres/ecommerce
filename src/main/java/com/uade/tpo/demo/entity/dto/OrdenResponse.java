@@ -1,6 +1,7 @@
 package com.uade.tpo.demo.entity.dto;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -13,4 +14,5 @@ public class OrdenResponse {
     private Float total;
     private String estado;
     private String metodoPago;
+    private List<ItemOrdenResponse> items;
 }

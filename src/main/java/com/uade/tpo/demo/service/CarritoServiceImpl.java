@@ -1,6 +1,9 @@
 package com.uade.tpo.demo.service;
 
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +19,6 @@ import com.uade.tpo.demo.entity.Libro;
 import com.uade.tpo.demo.entity.Orden;
 import com.uade.tpo.demo.entity.dto.CarritoResponse;
 import com.uade.tpo.demo.entity.dto.ItemCarritoResponse;
-import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 import com.uade.tpo.demo.repository.CarritoRepository;
 import com.uade.tpo.demo.repository.ItemCarritoRepository;
 import com.uade.tpo.demo.repository.UserRepository;
@@ -73,6 +75,16 @@ public class CarritoServiceImpl implements CarritoService {
                 itemResponse.setCantidad(item.getCantidad());
                 itemResponse.setPrecioUnitario(item.getPrecioUnitario());
                 itemResponse.setSubtotal(item.getSubtotal());
+                if (item.getLibro().getImagen() != null) {
+                    try {
+                        Blob blob = item.getLibro().getImagen().getImage();
+                        String base64 = Base64.getEncoder()
+                            .encodeToString(blob.getBytes(1, (int) blob.length()));
+                        itemResponse.setImagen(base64);
+                    } catch (SQLException e) {
+                        itemResponse.setImagen(null);
+                    }
+                }
                 return itemResponse;
             }).collect(Collectors.toList());
 
@@ -114,6 +126,16 @@ public class CarritoServiceImpl implements CarritoService {
     response.setCantidad(savedItem.getCantidad());
     response.setPrecioUnitario(savedItem.getPrecioUnitario());
     response.setSubtotal(savedItem.getSubtotal());
+    if (savedItem.getLibro().getImagen() != null) {
+        try {
+            Blob blob = savedItem.getLibro().getImagen().getImage();
+            String base64 = Base64.getEncoder()
+                .encodeToString(blob.getBytes(1, (int) blob.length()));
+            response.setImagen(base64);
+        } catch (SQLException e) {
+            response.setImagen(null);
+        }
+    }
 
     return response;
 }
@@ -154,6 +176,16 @@ public class CarritoServiceImpl implements CarritoService {
     response.setCantidad(savedItem.getCantidad());
     response.setPrecioUnitario(savedItem.getPrecioUnitario());
     response.setSubtotal(savedItem.getSubtotal());
+    if (savedItem.getLibro().getImagen() != null) {
+        try {
+            Blob blob = savedItem.getLibro().getImagen().getImage();
+            String base64 = Base64.getEncoder()
+                .encodeToString(blob.getBytes(1, (int) blob.length()));
+            response.setImagen(base64);
+        } catch (SQLException e) {
+            response.setImagen(null);
+        }
+    }
 
     return response;
     }

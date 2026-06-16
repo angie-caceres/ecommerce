@@ -31,10 +31,7 @@ import com.uade.tpo.demo.repository.LibroRepository;
 import com.uade.tpo.demo.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import com.uade.tpo.demo.service.*;
 import java.util.Base64;
-import java.sql.Blob;
-import java.sql.SQLException;
 import lombok.RequiredArgsConstructor;
 
 @Service
