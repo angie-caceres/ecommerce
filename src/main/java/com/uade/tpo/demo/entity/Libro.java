@@ -39,7 +39,11 @@ public class Libro {
     @Column(nullable = false)
     private int stock;
 
+    @Column(nullable = false)
     private String descripcion;
+
+    @Column(nullable = false)
+    private int paginas;
 
     @OneToMany(mappedBy = "libro")
     private List<ItemOrden> itemsOrden;

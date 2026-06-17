@@ -11,6 +11,7 @@ public class LibroRequest {
     private String descripcion;
     private float precio;
     private int stock;
+    private int paginas;
     private Long  idGenero;
     private Long  idEditorial;
     private Long idDescuento;

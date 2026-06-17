@@ -49,7 +49,7 @@ public class UsersController {
             Authentication auth,
             @RequestBody UserRequest request) {
         UserResponse actualizado = userService.actualizarUser(auth.getName(), request);
-        if (request.getPassword() != null) {
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
             AuthenticationRequest authRequest = new AuthenticationRequest(actualizado.getEmail(), request.getPassword());
             return ResponseEntity.ok(authenticationService.authenticate(authRequest));
         }

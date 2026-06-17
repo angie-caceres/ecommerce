@@ -33,55 +33,40 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(req -> req
-                // Auth - público
-                .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/error").permitAll()
 
-                // Libros - ver: ambos roles
                 .requestMatchers(HttpMethod.GET, "/libros/**").permitAll()
-                // Libros - crear/modificar/eliminar: solo ADMIN
                 .requestMatchers(HttpMethod.POST, "/libros/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/libros/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.DELETE, "/libros/**").hasRole("ADMINISTRADOR")
 
-                // Carrito - solo USER
                 .requestMatchers("/carrito/**").hasRole("USER")
 
-                // Ordenes - ver propias: USER, ver todas: ADMIN
-                .requestMatchers(HttpMethod.GET, "/ordenes/usuario/me**").hasRole("USER")//solo ve las propias
+                .requestMatchers(HttpMethod.GET, "/ordenes/usuario/me").hasRole("USER")
                 .requestMatchers(HttpMethod.GET, "/ordenes/*").hasAnyRole("USER", "ADMINISTRADOR")
-                .requestMatchers(HttpMethod.GET, "/ordenes/**").hasRole("ADMINISTRADOR")//ve ordendes por id de user, id de orden y todas
+                .requestMatchers(HttpMethod.GET, "/ordenes/**").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.PATCH, "/ordenes/*/cancelar").hasRole("ADMINISTRADOR")
 
-                // Géneros
-                .requestMatchers(HttpMethod.GET, "/generos/**").hasAnyRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/generos/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/generos/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.DELETE, "/generos/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/generos/**").hasRole("ADMINISTRADOR")
 
-                // Editoriales
-                .requestMatchers(HttpMethod.GET, "/editoriales/**").hasAnyRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/editoriales/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/editoriales/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.DELETE, "/editoriales/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/editoriales/**").hasRole("ADMINISTRADOR")
 
-                // Descuentos/imagen
-                .requestMatchers(HttpMethod.GET, "/descuentos/**").hasRole("ADMINISTRADOR")
-                .requestMatchers(HttpMethod.POST, "/descuentos/**").hasRole("ADMINISTRADOR")
-                .requestMatchers(HttpMethod.PATCH, "/descuentos/**").hasRole("ADMINISTRADOR")
+                .requestMatchers("/descuentos/**").hasRole("ADMINISTRADOR")
                 .requestMatchers("/imagenes/**").hasRole("ADMINISTRADOR")
-
-                // Autores - solo ADMIN
                 .requestMatchers("/autores/**").hasRole("ADMINISTRADOR")
-                .requestMatchers(HttpMethod.DELETE, "/autores/**").hasRole("ADMINISTRADOR")
-                .requestMatchers(HttpMethod.PATCH, "/autores/**").hasRole("ADMINISTRADOR")
-                
 
-                //Cada usuario puede ver sus datos y actualizarlos (menos el rol). El ADMINISTADOR puede ver todos los usuarios
                 .requestMatchers(HttpMethod.GET, "/usuarios/me").hasAnyRole("USER", "ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/usuarios/me").hasAnyRole("USER", "ADMINISTRADOR")
                 .requestMatchers(HttpMethod.GET, "/usuarios").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/usuarios/*/activo").hasRole("ADMINISTRADOR")
+
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
@@ -90,17 +75,18 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration config = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
 
         return source;
     }

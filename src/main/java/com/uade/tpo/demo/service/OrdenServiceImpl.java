@@ -111,46 +111,11 @@ public class OrdenServiceImpl implements OrdenService {
                     return response;
                 }).collect(Collectors.toList());
     }
-    /*public List<OrdenResponse> getOrdenes() {
-        return ordenRepository.findAll().stream()
-                .map(orden -> {
-                    OrdenResponse response = new OrdenResponse();
-
-                    response.setIdOrden(orden.getIdOrden());
-
-                    if (orden.getUsuario() != null) {
-                        response.setIdUsuario(orden.getUsuario().getIdUsuario());
-                    }
-
-                    response.setFechaVenta(orden.getFechaVenta());
-                    response.setTotal(orden.getTotal());
-                    response.setEstado(orden.getEstado());
-                    response.setMetodoPago(orden.getMetodoPago());
-                    response.setNombreUsuario(
-                        orden.getUsuario().getFirstName() + " " +
-                        orden.getUsuario().getLastName());
-
-                    response.setEmailUsuario(
-                        orden.getUsuario().getEmail());
-
-                    response.setProductos(
-                        itemOrdenService.getItemsByOrden(orden.getIdOrden())
-                            .stream()
-                            .map(ItemOrdenResponse::getTituloLibro)
-                            .collect(Collectors.joining(", "))
-                    );
-                    response.setItems(itemOrdenService.getItemsByOrden(orden.getIdOrden()));
-
-                    return response;
-                }).collect(Collectors.toList());
-    }
-
-    */
 
     // Crear orden desde el checkout. Llamado por CarritoService
     @Override
     @Transactional
-    public Orden crearDesdeCarrito(Carrito carrito, List<ItemCarrito> items) {
+    public Orden crearDesdeCarrito(Carrito carrito, List<ItemCarrito> items, String metodoPago) {
 
         // 1 crear la cabecera de la orden
         Orden nuevaOrden = new Orden();
@@ -158,7 +123,7 @@ public class OrdenServiceImpl implements OrdenService {
         nuevaOrden.setCarrito(carrito);
         nuevaOrden.setFechaVenta(new Date());
         nuevaOrden.setEstado("CONFIRMADA");
-        nuevaOrden.setMetodoPago("TRANSFERENCIA");
+        nuevaOrden.setMetodoPago(metodoPago);
 
         // 2 transformar items del carrito a items de la orden
         List<ItemOrden> itemsOrden = items.stream().map(itemCarrito -> {
@@ -181,6 +146,45 @@ public class OrdenServiceImpl implements OrdenService {
         // 4 guardar todo con cascade
         return ordenRepository.save(nuevaOrden);
     }
+    @Override
+    @Transactional
+    public OrdenResponse cancelarOrden(Long idOrden) {
+        Orden orden = ordenRepository.findById(idOrden)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "La orden con id " + idOrden + " no existe"));
 
-  
+        if ("CANCELADA".equals(orden.getEstado())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "La orden ya está cancelada");
+        }
+
+        for (ItemOrden item : orden.getItems()) {
+            item.getLibro().setStock(
+                    item.getLibro().getStock() + item.getCantidad()
+            );
+        }
+
+        orden.setEstado("CANCELADA");
+
+        Orden ordenGuardada = ordenRepository.save(orden);
+
+        OrdenResponse response = new OrdenResponse();
+        response.setIdOrden(ordenGuardada.getIdOrden());
+        response.setFechaVenta(ordenGuardada.getFechaVenta());
+        response.setTotal(ordenGuardada.getTotal());
+        response.setEstado(ordenGuardada.getEstado());
+        response.setMetodoPago(ordenGuardada.getMetodoPago());
+
+        if (ordenGuardada.getUsuario() != null) {
+            response.setIdUsuario(ordenGuardada.getUsuario().getIdUsuario());
+            response.setNombreUsuario(
+                    ordenGuardada.getUsuario().getFirstName() + " " + ordenGuardada.getUsuario().getLastName()
+            );
+            response.setEmailUsuario(ordenGuardada.getUsuario().getEmail());
+        }
+
+        response.setItems(itemOrdenService.getItemsByOrden(ordenGuardada.getIdOrden()));
+
+        return response;
+    }
 }
