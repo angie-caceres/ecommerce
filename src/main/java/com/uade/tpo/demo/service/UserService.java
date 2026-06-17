@@ -20,4 +20,6 @@ public interface UserService {
     public UserResponse getUserByEmail(String email);
 
     public UserResponse actualizarUser(String email, UserRequest request);
+    
+    public UserResponse cambiarEstadoUsuario(Long idUsuario);
 }

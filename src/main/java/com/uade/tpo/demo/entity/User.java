@@ -52,6 +52,10 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean activo = true;
+
     @OneToOne(mappedBy = "usuario")
     private Carrito carrito;
 
@@ -87,7 +91,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return activo;
     }
 
 }

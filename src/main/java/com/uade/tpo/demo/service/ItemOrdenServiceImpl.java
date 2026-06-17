@@ -1,5 +1,8 @@
 package com.uade.tpo.demo.service;
 
+import java.sql.Blob;
+import java.sql.SQLException;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +56,19 @@ public class ItemOrdenServiceImpl implements ItemOrdenService {
                 response.setCantidad(item.getCantidad());
                 response.setPrecioUnitario(item.getPrecioUnitario());
                 response.setSubtotal(item.getSubtotal());
+                if (item.getLibro().getImagen() != null) {
+                    try {
+                        Blob blob = item.getLibro().getImagen().getImage();
+
+                        String base64 = Base64.getEncoder()
+                                .encodeToString(blob.getBytes(1, (int) blob.length()));
+
+                        response.setImagen(base64);
+
+                    } catch (SQLException e) {
+                        response.setImagen(null);
+                    }
+                }
                 return response;
             }).collect(Collectors.toList());
 }

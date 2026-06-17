@@ -8,14 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.uade.tpo.demo.entity.Role;
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.UserRequest;
 import com.uade.tpo.demo.entity.dto.UserResponse;
-import com.uade.tpo.demo.exceptions.UserDuplicateException;
 import com.uade.tpo.demo.repository.UserRepository;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -35,9 +31,28 @@ public class UserServiceImpl implements UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole())
+                .activo(user.isActivo())
                 .build())
             .collect(Collectors.toList());
     }
+    @Override
+        public UserResponse cambiarEstadoUsuario(Long idUsuario) {
+            User user = userRepository.findById(idUsuario)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            user.setActivo(!user.isActivo());
+
+            User guardado = userRepository.save(user);
+
+            return UserResponse.builder()
+                .idUsuario(guardado.getIdUsuario())
+                .email(guardado.getEmail())
+                .firstName(guardado.getFirstName())
+                .lastName(guardado.getLastName())
+                .role(guardado.getRole())
+                .activo(guardado.isActivo())
+                .build();
+                }
 
     
     public Optional<User> getUserById(Long userId) {
@@ -60,6 +75,7 @@ public class UserServiceImpl implements UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole())
+                .activo(user.isActivo())
                 .build();
     }
 
@@ -67,7 +83,9 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email).orElseThrow();
         
         if (request.getEmail() != null) user.setEmail(request.getEmail());
-        if (request.getPassword() != null) user.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
         if (request.getLastName() != null) user.setLastName(request.getLastName());
         
