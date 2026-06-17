@@ -35,9 +35,28 @@ public class UserServiceImpl implements UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole())
+                .activo(user.isActivo())
                 .build())
             .collect(Collectors.toList());
     }
+    @Override
+        public UserResponse cambiarEstadoUsuario(Long idUsuario) {
+            User user = userRepository.findById(idUsuario)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            user.setActivo(!user.isActivo());
+
+            User guardado = userRepository.save(user);
+
+            return UserResponse.builder()
+                .idUsuario(guardado.getIdUsuario())
+                .email(guardado.getEmail())
+                .firstName(guardado.getFirstName())
+                .lastName(guardado.getLastName())
+                .role(guardado.getRole())
+                .activo(guardado.isActivo())
+                .build();
+                }
 
     
     public Optional<User> getUserById(Long userId) {
@@ -60,6 +79,7 @@ public class UserServiceImpl implements UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole())
+                .activo(user.isActivo())
                 .build();
     }
 

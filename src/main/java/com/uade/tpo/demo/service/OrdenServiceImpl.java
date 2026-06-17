@@ -14,6 +14,7 @@ import com.uade.tpo.demo.entity.Carrito;
 import com.uade.tpo.demo.entity.ItemCarrito;
 import com.uade.tpo.demo.entity.ItemOrden;
 import com.uade.tpo.demo.entity.Orden;
+import com.uade.tpo.demo.entity.dto.ItemOrdenResponse;
 import com.uade.tpo.demo.entity.dto.OrdenDetalleResponse;
 import com.uade.tpo.demo.entity.dto.OrdenResponse;
 import com.uade.tpo.demo.repository.OrdenRepository;
@@ -46,7 +47,9 @@ public class OrdenServiceImpl implements OrdenService {
             .map(orden -> {
                 OrdenResponse response = new OrdenResponse();
                 response.setIdOrden(orden.getIdOrden());
-                response.setIdUsuario(orden.getUsuario().getIdUsuario());
+                if (orden.getUsuario() != null) {
+                    response.setIdUsuario(orden.getUsuario().getIdUsuario());
+                }
                 response.setFechaVenta(orden.getFechaVenta());
                 response.setTotal(orden.getTotal());
                 response.setEstado(orden.getEstado());
@@ -78,20 +81,71 @@ public class OrdenServiceImpl implements OrdenService {
     //todas las ordenes
     @Override
     public List<OrdenResponse> getOrdenes() {
-    return ordenRepository.findAll().stream()
-            .map(orden -> {
-                OrdenResponse response = new OrdenResponse();
-                response.setIdOrden(orden.getIdOrden());
-                response.setIdUsuario(orden.getUsuario().getIdUsuario());
-                response.setFechaVenta(orden.getFechaVenta());
-                response.setTotal(orden.getTotal());
-                response.setEstado(orden.getEstado());
-                response.setMetodoPago(orden.getMetodoPago());
-                return response;
-            }).collect(Collectors.toList());
+        return ordenRepository.findAll().stream()
+                .map(orden -> {
+                    OrdenResponse response = new OrdenResponse();
+
+                    response.setIdOrden(orden.getIdOrden());
+                    response.setFechaVenta(orden.getFechaVenta());
+                    response.setTotal(orden.getTotal());
+                    response.setEstado(orden.getEstado());
+                    response.setMetodoPago(orden.getMetodoPago());
+
+                    if (orden.getUsuario() != null) {
+                        response.setIdUsuario(orden.getUsuario().getIdUsuario());
+                        response.setNombreUsuario(
+                                orden.getUsuario().getFirstName() + " " + orden.getUsuario().getLastName()
+                        );
+                        response.setEmailUsuario(orden.getUsuario().getEmail());
+                    }
+
+                    response.setItems(itemOrdenService.getItemsByOrden(orden.getIdOrden()));
+
+                    response.setProductos(
+                        response.getItems()
+                            .stream()
+                            .map(ItemOrdenResponse::getTituloLibro)
+                            .collect(Collectors.joining(", "))
+                );
+
+                    return response;
+                }).collect(Collectors.toList());
+    }
+    /*public List<OrdenResponse> getOrdenes() {
+        return ordenRepository.findAll().stream()
+                .map(orden -> {
+                    OrdenResponse response = new OrdenResponse();
+
+                    response.setIdOrden(orden.getIdOrden());
+
+                    if (orden.getUsuario() != null) {
+                        response.setIdUsuario(orden.getUsuario().getIdUsuario());
+                    }
+
+                    response.setFechaVenta(orden.getFechaVenta());
+                    response.setTotal(orden.getTotal());
+                    response.setEstado(orden.getEstado());
+                    response.setMetodoPago(orden.getMetodoPago());
+                    response.setNombreUsuario(
+                        orden.getUsuario().getFirstName() + " " +
+                        orden.getUsuario().getLastName());
+
+                    response.setEmailUsuario(
+                        orden.getUsuario().getEmail());
+
+                    response.setProductos(
+                        itemOrdenService.getItemsByOrden(orden.getIdOrden())
+                            .stream()
+                            .map(ItemOrdenResponse::getTituloLibro)
+                            .collect(Collectors.joining(", "))
+                    );
+                    response.setItems(itemOrdenService.getItemsByOrden(orden.getIdOrden()));
+
+                    return response;
+                }).collect(Collectors.toList());
     }
 
-    
+    */
 
     // Crear orden desde el checkout. Llamado por CarritoService
     @Override

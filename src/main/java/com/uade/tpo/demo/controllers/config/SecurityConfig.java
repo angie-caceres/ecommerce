@@ -78,10 +78,10 @@ public class SecurityConfig {
                 
 
                 //Cada usuario puede ver sus datos y actualizarlos (menos el rol). El ADMINISTADOR puede ver todos los usuarios
-                .requestMatchers(HttpMethod.GET, "/api/v1/users/me").hasAnyRole("USER", "ADMINISTRADOR")
-                .requestMatchers(HttpMethod.PATCH, "/api/v1/users/me").hasAnyRole("USER", "ADMINISTRADOR")
-                .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("ADMINISTRADOR")
-
+                .requestMatchers(HttpMethod.GET, "/usuarios/me").hasAnyRole("USER", "ADMINISTRADOR")
+                .requestMatchers(HttpMethod.PATCH, "/usuarios/me").hasAnyRole("USER", "ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/usuarios").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.PATCH, "/usuarios/*/activo").hasRole("ADMINISTRADOR")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))

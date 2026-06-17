@@ -15,4 +15,7 @@ public class OrdenResponse {
     private String estado;
     private String metodoPago;
     private List<ItemOrdenResponse> items;
+    private String nombreUsuario;
+    private String emailUsuario;
+    private String productos;
 }
