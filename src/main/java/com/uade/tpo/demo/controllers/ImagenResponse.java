@@ -7,4 +7,5 @@ import lombok.Data;
 public class ImagenResponse {
     private Long id;
     private String file;
+    private String name;
 }
