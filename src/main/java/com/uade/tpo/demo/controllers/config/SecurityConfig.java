@@ -60,7 +60,10 @@ public class SecurityConfig {
 
                 .requestMatchers("/descuentos/**").hasRole("ADMINISTRADOR")
                 .requestMatchers("/imagenes/**").hasRole("ADMINISTRADOR")
-                .requestMatchers("/autores/**").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/autores/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/autores").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/autores/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/autores/**").authenticated()
 
                 .requestMatchers(HttpMethod.GET, "/usuarios/me").hasAnyRole("USER", "ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/usuarios/me").hasAnyRole("USER", "ADMINISTRADOR")

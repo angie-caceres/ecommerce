@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,7 +18,6 @@ import com.uade.tpo.demo.entity.Autor;
 import com.uade.tpo.demo.entity.dto.AutorRequest;
 import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 import com.uade.tpo.demo.service.AutorService;
-
 
 import lombok.RequiredArgsConstructor;
 
@@ -56,11 +56,14 @@ public class AutorController {
 
     // POST /autores
     @PostMapping
-    public Autor createAutor(@RequestBody AutorRequest request) {
-        return autorService.createAutor(
-                request.getNombre(),
-                request.getApellido(),
-                request.getNacionalidad()
-        );
+        public Autor createAutor(@RequestBody AutorRequest request, Authentication authentication) {
+            System.out.println("USUARIO: " + authentication.getName());
+            System.out.println("ROLES: " + authentication.getAuthorities());
+
+            return autorService.createAutor(
+                    request.getNombre(),
+                    request.getApellido(),
+                    request.getNacionalidad()
+            );
     }
 }

@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,5 +36,19 @@ public class ImagenServiceImpl implements ImagenService {
                 HttpStatus.NOT_FOUND, "Imagen con id " + id + " no encontrada"));
         imagen.setImage(nuevaImagen.getImage());
         return imageRepository.save(imagen);
+    }
+
+    @Override
+    public List<Imagen> getImagenes() {
+        return imageRepository.findAll();
+    }
+
+    @Override
+    public void delete(long id) {
+        Imagen imagen = imageRepository.findById(id)
+            .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "Imagen con id " + id + " no encontrada"));
+                
+        imageRepository.delete(imagen);
     }
 }
