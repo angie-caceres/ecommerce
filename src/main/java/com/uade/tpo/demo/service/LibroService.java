@@ -22,6 +22,7 @@ public interface LibroService {
     Libro actualizarEditorial(Long id, Long idEditorial);
     Libro actualizarAutores(Long id, List<Long> idAutores);
     Libro asignarImagen(Long libroId, Long imagenId);
+    Libro actualizarDatosBasicos(Long id, LibroRequest request);
 
     boolean tieneStock(Long id, int cantidad);
 

@@ -237,6 +237,26 @@ public class LibroServiceImpl implements LibroService {
     }
 
    
+    @Override
+    public Libro actualizarDatosBasicos(Long id, LibroRequest request) {
+        Libro libro = getLibroById(id);
+
+        if (request.getTitulo() != null && !request.getTitulo().isBlank()) {
+            libro.setTitulo(request.getTitulo());
+        }
+        if (request.getDescripcion() != null && !request.getDescripcion().isBlank()) {
+            libro.setDescripcion(request.getDescripcion());
+        }
+        if (request.getPrecio() > 0) {
+            libro.setPrecio(request.getPrecio());
+        }
+        if (request.getPaginas() > 0) {
+            libro.setPaginas(request.getPaginas());
+        }
+
+        return libroRepository.save(libro);
+    }
+
    @Override
     public Libro asignarDescuento(Long libroId, Long descuentoId) {
         Libro libro = getLibroById(libroId);
