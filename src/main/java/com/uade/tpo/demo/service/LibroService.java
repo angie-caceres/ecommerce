@@ -18,6 +18,7 @@ public interface LibroService {
     Libro asignarDescuento(Long libroId, Long descuentoId);
     Libro getLibroByTitulo(String titulo);
     void deleteLibro(Long id);
+    Libro activarLibro(Long id);
     Libro actualizarGenero(Long id, Long idGenero);
     Libro actualizarEditorial(Long id, Long idEditorial);
     Libro actualizarAutores(Long id, List<Long> idAutores);

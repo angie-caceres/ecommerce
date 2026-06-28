@@ -124,11 +124,15 @@ public class LibroController {
                 libroService.actualizarDatosBasicos(id, request)));
     }
 
-    //eliminar libro  por id
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLibro(@PathVariable Long id) {
         libroService.deleteLibro(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/activar")
+    public ResponseEntity<LibroResponse> activarLibro(@PathVariable Long id) {
+        return ResponseEntity.ok(libroService.convertirAResponse(libroService.activarLibro(id)));
     }
 
 }

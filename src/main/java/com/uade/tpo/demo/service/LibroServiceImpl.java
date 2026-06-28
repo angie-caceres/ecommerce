@@ -2,21 +2,21 @@ package com.uade.tpo.demo.service;
 
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.uade.tpo.demo.entity.Autor;
 import com.uade.tpo.demo.entity.Descuento;
-import com.uade.tpo.demo.entity.Genero;
-import com.uade.tpo.demo.entity.Imagen;
-import com.uade.tpo.demo.entity.Descuento;
 import com.uade.tpo.demo.entity.Editorial;
 import com.uade.tpo.demo.entity.Genero;
+import com.uade.tpo.demo.entity.Imagen;
 import com.uade.tpo.demo.entity.Libro;
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.LibroRequest;
@@ -27,16 +27,9 @@ import com.uade.tpo.demo.repository.DescuentoRepository;
 import com.uade.tpo.demo.repository.EditorialRepository;
 import com.uade.tpo.demo.repository.GeneroRepository;
 import com.uade.tpo.demo.repository.ImagenRepository;
-import com.uade.tpo.demo.repository.ItemCarritoRepository;
-import com.uade.tpo.demo.repository.ItemOrdenRepository;
 import com.uade.tpo.demo.repository.LibroRepository;
 import com.uade.tpo.demo.repository.UserRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import com.uade.tpo.demo.service.*;
-import java.util.Base64;
-import java.sql.Blob;
-import java.sql.SQLException;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -50,9 +43,6 @@ public class LibroServiceImpl implements LibroService {
     private final ImagenRepository imagenRepository;
     private final UserRepository userRepository;
     private final AutorRepository autorRepository;
-    private final ItemCarritoRepository itemCarritoRepository;
-    private final ItemOrdenRepository itemOrdenRepository;
-
     @Override
     public List<Libro> getLibros(String genero, String autor, String editorial, Float precioMin, Float precioMax) {
 
@@ -84,21 +74,19 @@ public class LibroServiceImpl implements LibroService {
             return libros;
         }
     
-        return libroRepository.findAll();
+        return libroRepository.findAllByActivoTrue();
     }
 
     @Override
     public Libro getLibroById(Long id) {
-        Optional<Libro> libroOpt = libroRepository.findById(id);
-        if (libroOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El libro con id " + id + " no existe");
-        }
-        return libroOpt.get();
+        return libroRepository.findById(id)
+            .filter(Libro::isActivo)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "El libro con id " + id + " no existe"));
     }
 
     @Override
     public Libro getLibroByTitulo(String titulo) {
-        return libroRepository.findByTitulo(titulo)
+        return libroRepository.findByTituloAndActivoTrue(titulo)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el libro: " + titulo));
     }
      
@@ -172,12 +160,16 @@ public class LibroServiceImpl implements LibroService {
     @Override
     public void deleteLibro(Long id) {
         Libro libro = getLibroById(id);
-        if (!itemOrdenRepository.findByIdLibro(id).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "No se puede eliminar el libro porque tiene órdenes asociadas");
-        }
-        itemCarritoRepository.deleteByLibroId(id);
-        libroRepository.delete(libro);
+        libro.setActivo(false);
+        libroRepository.save(libro);
+    }
+
+    @Override
+    public Libro activarLibro(Long id) {
+        Libro libro = libroRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "El libro con id " + id + " no existe"));
+        libro.setActivo(true);
+        return libroRepository.save(libro);
     }
     
 

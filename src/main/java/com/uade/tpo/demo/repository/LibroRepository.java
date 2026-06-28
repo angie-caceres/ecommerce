@@ -16,26 +16,27 @@ import com.uade.tpo.demo.entity.Libro;
 @Repository
 public interface LibroRepository extends JpaRepository<Libro, Long> {
 
-    // Validación
-    @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM Libro l WHERE l.titulo = ?1")
+    // Validación (solo libros activos)
+    @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM Libro l WHERE l.titulo = ?1 AND l.activo = true")
     boolean existsByTitulo(String titulo);
 
+    List<Libro> findAllByActivoTrue();
+
     //Filtro por género
-    @Query("SELECT l FROM Libro l WHERE l.genero = ?1")
+    @Query("SELECT l FROM Libro l WHERE l.genero = ?1 AND l.activo = true")
     List<Libro> findByGenero(Genero genero);
 
     // Filtro por precio
-    @Query("SELECT l FROM Libro l WHERE l.precio BETWEEN ?1 AND ?2")
+    @Query("SELECT l FROM Libro l WHERE l.precio BETWEEN ?1 AND ?2 AND l.activo = true")
     List<Libro> findByPrecioBetween(float precioMin, float precioMax);
 
     // Filtro por autor
-    @Query("SELECT l FROM Libro l  JOIN l.autores a WHERE a = ?1")
+    @Query("SELECT l FROM Libro l JOIN l.autores a WHERE a = ?1 AND l.activo = true")
     List<Libro> findByAutor(Autor autor);
 
-    Optional<Libro> findByTitulo(String titulo);
+    Optional<Libro> findByTituloAndActivoTrue(String titulo);
 
-
-    @Query("SELECT l FROM Libro l WHERE l.editorial = ?1")
+    @Query("SELECT l FROM Libro l WHERE l.editorial = ?1 AND l.activo = true")
     List<Libro> findByEditorial(Editorial editorial);
 
     boolean existsByImagen(Imagen imagen);

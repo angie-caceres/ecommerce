@@ -80,6 +80,7 @@ public class Libro {
     @JoinColumn(name = "idAdministrador")
     private User administrador;
 
-    
+    @Column(nullable = false)
+    private boolean activo = true;
 
 }
