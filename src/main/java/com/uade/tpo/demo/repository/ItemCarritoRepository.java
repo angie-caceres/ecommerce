@@ -20,4 +20,9 @@ public interface ItemCarritoRepository extends JpaRepository<ItemCarrito,Long> {
     @Transactional
     @Query("DELETE FROM ItemCarrito i WHERE i.carrito.idCarrito = ?1")
     void deleteByCarritoId(Long idCarrito);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ItemCarrito i WHERE i.libro.idLibro = ?1")
+    void deleteByLibroId(Long idLibro);
 }

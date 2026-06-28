@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.uade.tpo.demo.entity.Autor;
 import com.uade.tpo.demo.entity.Editorial;
 import com.uade.tpo.demo.entity.Genero;
+import com.uade.tpo.demo.entity.Imagen;
 import com.uade.tpo.demo.entity.Libro;
 
 @Repository
@@ -37,5 +38,6 @@ public interface LibroRepository extends JpaRepository<Libro, Long> {
     @Query("SELECT l FROM Libro l WHERE l.editorial = ?1")
     List<Libro> findByEditorial(Editorial editorial);
 
+    boolean existsByImagen(Imagen imagen);
 
 }

@@ -27,6 +27,8 @@ import com.uade.tpo.demo.repository.DescuentoRepository;
 import com.uade.tpo.demo.repository.EditorialRepository;
 import com.uade.tpo.demo.repository.GeneroRepository;
 import com.uade.tpo.demo.repository.ImagenRepository;
+import com.uade.tpo.demo.repository.ItemCarritoRepository;
+import com.uade.tpo.demo.repository.ItemOrdenRepository;
 import com.uade.tpo.demo.repository.LibroRepository;
 import com.uade.tpo.demo.repository.UserRepository;
 import org.springframework.security.core.Authentication;
@@ -45,9 +47,11 @@ public class LibroServiceImpl implements LibroService {
     private final GeneroRepository generoRepository;
     private final EditorialRepository editorialRepository;
     private final DescuentoRepository descuentoRepository;
-    private final ImagenRepository imagenRepository; 
+    private final ImagenRepository imagenRepository;
     private final UserRepository userRepository;
     private final AutorRepository autorRepository;
+    private final ItemCarritoRepository itemCarritoRepository;
+    private final ItemOrdenRepository itemOrdenRepository;
 
     @Override
     public List<Libro> getLibros(String genero, String autor, String editorial, Float precioMin, Float precioMax) {
@@ -164,6 +168,11 @@ public class LibroServiceImpl implements LibroService {
     @Override
     public void deleteLibro(Long id) {
         Libro libro = getLibroById(id);
+        if (!itemOrdenRepository.findByIdLibro(id).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "No se puede eliminar el libro porque tiene órdenes asociadas");
+        }
+        itemCarritoRepository.deleteByLibroId(id);
         libroRepository.delete(libro);
     }
     

@@ -35,9 +35,9 @@ public class Imagen {
     @Column
     private String nombre;
 
-    @JsonIgnore
+  /*  @JsonIgnore
     @OneToOne(mappedBy = "imagen")
-    private Libro libro;
+    private Libro libro;*/ 
     
     
 
