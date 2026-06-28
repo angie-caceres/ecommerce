@@ -36,6 +36,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/error").permitAll()
 
+                .requestMatchers(HttpMethod.GET, "/libros/todos").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/libros/*/admin").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.GET, "/libros/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/libros/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.PATCH, "/libros/**").hasRole("ADMINISTRADOR")

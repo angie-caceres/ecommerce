@@ -85,6 +85,12 @@ public class LibroServiceImpl implements LibroService {
     }
 
     @Override
+    public Libro getLibroByIdAdmin(Long id) {
+        return libroRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "El libro con id " + id + " no existe"));
+    }
+
+    @Override
     public Libro getLibroByTitulo(String titulo) {
         return libroRepository.findByTituloAndActivoTrue(titulo)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el libro: " + titulo));
@@ -150,7 +156,7 @@ public class LibroServiceImpl implements LibroService {
 
     @Override
     public Libro asignarImagen(Long libroId, Long imagenId) {
-        Libro libro = getLibroById(libroId);
+        Libro libro = getLibroByIdAdmin(libroId);
         Imagen imagen = imagenRepository.findById(imagenId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la imagen con id: " + imagenId));
         libro.setImagen(imagen);
@@ -158,8 +164,13 @@ public class LibroServiceImpl implements LibroService {
     }
 
     @Override
+    public List<Libro> getTodosLosLibros() {
+        return libroRepository.findAll();
+    }
+
+    @Override
     public void deleteLibro(Long id) {
-        Libro libro = getLibroById(id);
+        Libro libro = getLibroByIdAdmin(id);
         libro.setActivo(false);
         libroRepository.save(libro);
     }
@@ -175,7 +186,7 @@ public class LibroServiceImpl implements LibroService {
 
     @Override
     public Libro actualizarGenero(Long id, Long idGenero) {
-        Libro libro = getLibroById(id);
+        Libro libro = getLibroByIdAdmin(id);
         Genero genero = generoRepository.findById(idGenero)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el género con id: " + idGenero));
         libro.setGenero(genero);
@@ -184,7 +195,7 @@ public class LibroServiceImpl implements LibroService {
 
     @Override
     public Libro actualizarEditorial(Long id, Long idEditorial) {
-        Libro libro = getLibroById(id);
+        Libro libro = getLibroByIdAdmin(id);
         Editorial editorial = editorialRepository.findById(idEditorial)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la editorial con id: " + idEditorial));
         libro.setEditorial(editorial);
@@ -193,7 +204,7 @@ public class LibroServiceImpl implements LibroService {
 
     @Override
     public Libro actualizarAutores(Long id, List<Long> idAutores) {
-        Libro libro = getLibroById(id);
+        Libro libro = getLibroByIdAdmin(id);
         List<Autor> autores = idAutores.stream()
             .map(idAutor -> autorRepository.findById(idAutor)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el autor con id: " + idAutor)))
@@ -244,7 +255,7 @@ public class LibroServiceImpl implements LibroService {
    
     @Override
     public Libro actualizarDatosBasicos(Long id, LibroRequest request) {
-        Libro libro = getLibroById(id);
+        Libro libro = getLibroByIdAdmin(id);
 
         if (request.getTitulo() != null && !request.getTitulo().isBlank()) {
             libro.setTitulo(request.getTitulo());
@@ -264,7 +275,7 @@ public class LibroServiceImpl implements LibroService {
 
    @Override
     public Libro asignarDescuento(Long libroId, Long descuentoId) {
-        Libro libro = getLibroById(libroId);
+        Libro libro = getLibroByIdAdmin(libroId);
         Descuento descuento = descuentoRepository.findById(descuentoId)
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Descuento no encontrado"));
@@ -307,6 +318,7 @@ public class LibroServiceImpl implements LibroService {
     if (libro.getDescuento() != null) {
             response.setPorcentajeDescuento(libro.getDescuento().getPorcentaje());
         }
+        response.setActivo(libro.isActivo());
         return response;
     }
 }

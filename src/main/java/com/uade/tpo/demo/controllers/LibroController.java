@@ -32,6 +32,16 @@ public class LibroController {
     @Autowired
     private final LibroService libroService;
 
+    // GET /libros/todos — solo admin, incluye activos e inactivos
+    @GetMapping("/todos")
+    public ResponseEntity<List<LibroResponse>> getTodosLosLibros() {
+        List<LibroResponse> libros = libroService.getTodosLosLibros()
+            .stream()
+            .map(libroService::convertirAResponse)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(libros);
+    }
+
     // GET /libros
     @GetMapping
     public ResponseEntity<List<LibroResponse>> getLibros(
@@ -60,6 +70,12 @@ public class LibroController {
     @GetMapping("/{id}")
     public ResponseEntity<LibroResponse> getLibroById(@PathVariable Long id) {
         return ResponseEntity.ok(libroService.convertirAResponse(libroService.getLibroById(id)));
+    }
+
+    // GET /libros/{id}/admin — incluye libros desactivados
+    @GetMapping("/{id}/admin")
+    public ResponseEntity<LibroResponse> getLibroByIdAdmin(@PathVariable Long id) {
+        return ResponseEntity.ok(libroService.convertirAResponse(libroService.getLibroByIdAdmin(id)));
     }
 
     //GET localhost:4002/libros/buscar?titulo=Cien años de soledad
