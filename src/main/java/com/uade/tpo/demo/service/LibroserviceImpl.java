@@ -147,11 +147,15 @@ public class LibroServiceImpl implements LibroService {
         libro.setGenero(genero);
         libro.setEditorial(editorial);
         libro.setAutores(autores);
+        libro.setPaginas(request.getPaginas());
+       
 
         // obtener el admin autenticado
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User admin = userRepository.findByEmail(auth.getName()).orElseThrow();
         libro.setAdministrador(admin);
+
+       
 
         return libroRepository.save(libro);
     }
@@ -283,6 +287,7 @@ public class LibroServiceImpl implements LibroService {
         response.setDescripcion(libro.getDescripcion());
         response.setPrecio(libro.getPrecio());
         response.setStock(libro.getStock());
+        response.setPaginas(libro.getPaginas());
 
     if (libro.getGenero() != null)
         response.setGenero(libro.getGenero().getNombre());
