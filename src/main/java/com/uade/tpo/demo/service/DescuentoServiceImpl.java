@@ -24,9 +24,9 @@ public class DescuentoServiceImpl implements DescuentoService {
     }
     public Descuento createDescuento(double porcentaje) throws RecursoDuplicateException {
 
-        if (porcentaje < 1 || porcentaje > 100) {
+        if (porcentaje < 0 || porcentaje > 100) {
             throw new IllegalArgumentException(
-                    "El porcentaje de descuento debe estar entre 1 y 100.");
+                    "El porcentaje de descuento debe estar entre 0 y 100.");
         }
 
         List<Descuento> existentes = descuentoRepository.findByPorcentaje(porcentaje);
