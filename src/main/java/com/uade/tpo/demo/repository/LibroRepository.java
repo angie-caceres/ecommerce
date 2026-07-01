@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.uade.tpo.demo.entity.Autor;
+import com.uade.tpo.demo.entity.Descuento;
 import com.uade.tpo.demo.entity.Editorial;
 import com.uade.tpo.demo.entity.Genero;
 import com.uade.tpo.demo.entity.Imagen;
@@ -15,6 +16,7 @@ import com.uade.tpo.demo.entity.Libro;
 
 @Repository
 public interface LibroRepository extends JpaRepository<Libro, Long> {
+    List<Libro> findByDescuento(Descuento descuento);
 
     // Validación (solo libros activos)
     @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM Libro l WHERE l.titulo = ?1 AND l.activo = true")

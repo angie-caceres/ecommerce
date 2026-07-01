@@ -8,16 +8,20 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.demo.entity.Descuento;
+import com.uade.tpo.demo.entity.Libro;
 import com.uade.tpo.demo.exceptions.RecursoDuplicateException;
 import com.uade.tpo.demo.exceptions.RecursoNotFoundException;
 import com.uade.tpo.demo.repository.DescuentoRepository;
+import com.uade.tpo.demo.repository.LibroRepository;
 
 @Service
 public class DescuentoServiceImpl implements DescuentoService {
 
     @Autowired
     private DescuentoRepository descuentoRepository;
-    
+
+    @Autowired
+    private LibroRepository libroRepository;
     public Page<Descuento> getDescuentos(PageRequest pageRequest) {
         return descuentoRepository.findAll(pageRequest);
    
@@ -44,10 +48,29 @@ public class DescuentoServiceImpl implements DescuentoService {
 
     public Descuento toggleActivo(Long id) throws RecursoNotFoundException {
         Optional<Descuento> result = descuentoRepository.findById(id);
-        if (result.isEmpty())
+
+        if (result.isEmpty()) {
             throw new RecursoNotFoundException();
+        }
+
         Descuento descuento = result.get();
-        descuento.setActivo(!descuento.isActivo()); // invierte el estado
+
+        if (descuento.isActivo()) {
+            List<Libro> librosConDescuento = libroRepository.findByDescuento(descuento);
+
+            // Buscar el descuento de 0%
+            Descuento descuentoCero =
+                    descuentoRepository.findByPorcentaje(0).get(0);
+
+            for (Libro libro : librosConDescuento) {
+                libro.setDescuento(descuentoCero);
+            }
+
+            libroRepository.saveAll(librosConDescuento);
+}
+
+        descuento.setActivo(!descuento.isActivo());
+
         return descuentoRepository.save(descuento);
     }
     
